@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Esgrima Nacional 2025–2026</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0d0f14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Esgrima">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-startup-image" href="icon-512.png">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e28;--bd:rgba(255,255,255,.07);--tx:#e8eaf0;--mu:#6b7280;--ac:#c8f050;--bl:#50c8f0;--ok:#50f090}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+header{border-bottom:1px solid var(--bd);background:var(--bg2);padding:0 28px;display:flex;align-items:center;height:52px;gap:16px}
+.ht{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--ac);letter-spacing:.04em}
+.hs{font-family:'DM Mono',monospace;font-size:10px;color:var(--mu);margin-left:auto;letter-spacing:.06em}
+.hero{padding:36px 28px 28px;text-align:center;max-width:680px;margin:0 auto}
+.hero h1{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1.1;margin-bottom:8px}
+.hero h1 span{color:var(--ac)}
+.hero p{font-size:13px;color:var(--mu)}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:960px;margin:0 auto;padding:0 28px 48px}
+.sport-label{grid-column:1/-1;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--mu);padding:4px 0 2px;border-bottom:1px solid var(--bd);margin-bottom:2px}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:18px;text-decoration:none;color:var(--tx);transition:all .2s;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;pointer-events:none}
+.cm::before{background:radial-gradient(circle at 80% 20%,rgba(200,240,80,.07),transparent 60%)}
+.cf::before{background:radial-gradient(circle at 80% 20%,rgba(80,200,240,.07),transparent 60%)}
+.card:hover{transform:translateY(-2px)}.card:hover::before{opacity:1}
+.cm:hover{border-color:rgba(200,240,80,.35)}
+.cf:hover{border-color:rgba(80,200,240,.35)}
+.ctag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+.cm .ctag{color:var(--ac)}.cf .ctag{color:var(--bl)}
+.ctitle{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;line-height:1.1}
+.cstats{display:flex;gap:10px}
+.sv{font-family:'Syne',sans-serif;font-size:16px;font-weight:800}
+.sl{font-family:'DM Mono',monospace;font-size:8px;color:var(--mu);letter-spacing:.07em;margin-top:1px}
+.cm .sv{color:var(--ac)}.cf .sv{color:var(--bl)}
+.cfoot{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--bd);margin-top:auto}
+.status{display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:9px;color:var(--ok)}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.arr{font-family:'DM Mono',monospace;font-size:10px;color:var(--mu);transition:color .15s}
+.card:hover .arr{color:var(--tx)}
+footer{margin-top:auto;border-top:1px solid var(--bd);padding:14px 28px;display:flex;align-items:center;justify-content:space-between}
+.ft{font-family:'DM Mono',monospace;font-size:10px;color:var(--mu);letter-spacing:.06em}
+@media(max-width:680px){.grid{grid-template-columns:1fr 1fr;padding:0 16px 32px}.hero{padding:28px 16px 20px}.hero h1{font-size:26px}header{padding:0 16px}}
+@media(max-width:420px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="ht">⚔ ESGRIMA NACIONAL</div>
+  <div class="hs">TEMPORADA 2025 · 2026</div>
+</header>
+
+<div class="hero">
+  <h1>Panel <span>Nacional</span><br>de Esgrima</h1>
+  <p>Carga, wellness y competiciones · Temporada 2025/2026</p>
+</div>
+
+<div class="grid">
+
+  <div class="sport-label">ESPADA</div>
+  <a href="espada_masculina_2025-26.html" class="card cm">
+    <div><div class="ctag">Masculino</div><div class="ctitle">Espada Masculina</div></div>
+    <div class="cstats"><div><div class="sv">52</div><div class="sl">Semanas</div></div><div><div class="sv">18+</div><div class="sl">Comps.</div></div><div><div class="sv">Live</div><div class="sl">Wellness</div></div></div>
+    <div class="cfoot"><div class="status"><div class="dot"></div>En tiempo real</div><div class="arr">→</div></div>
+  </a>
+  <a href="espada_femenina_2025-26.html" class="card cf">
+    <div><div class="ctag">Femenino</div><div class="ctitle">Espada Femenina</div></div>
+    <div class="cstats"><div><div class="sv">52</div><div class="sl">Semanas</div></div><div><div class="sv">18+</div><div class="sl">Comps.</div></div><div><div class="sv">Live</div><div class="sl">Wellness</div></div></div>
+    <div class="cfoot"><div class="status"><div class="dot"></div>En tiempo real</div><div class="arr">→</div></div>
+  </a>
+  <div></div>
+
+  <div class="sport-label">FLORETE</div>
+  <a href="florete_masculino_2025-26.html" class="card cm">
+    <div><div class="ctag">Masculino</div><div class="ctitle">Florete Masculino</div></div>
+    <div class="cstats"><div><div class="sv">52</div><div class="sl">Semanas</div></div><div><div class="sv">18+</div><div class="sl">Comps.</div></div><div><div class="sv">Live</div><div class="sl">Wellness</div></div></div>
+    <div class="cfoot"><div class="status"><div class="dot"></div>En tiempo real</div><div class="arr">→</div></div>
+  </a>
+  <a href="florete_femenino_2025-26.html" class="card cf">
+    <div><div class="ctag">Femenino</div><div class="ctitle">Florete Femenino</div></div>
+    <div class="cstats"><div><div class="sv">52</div><div class="sl">Semanas</div></div><div><div class="sv">18+</div><div class="sl">Comps.</div></div><div><div class="sv">Live</div><div class="sl">Wellness</div></div></div>
+    <div class="cfoot"><div class="status"><div class="dot"></div>En tiempo real</div><div class="arr">→</div></div>
+  </a>
+  <div></div>
+
+  <div class="sport-label">SABLE</div>
+  <a href="sable_masculino_2025-26.html" class="card cm">
+    <div><div class="ctag">Masculino</div><div class="ctitle">Sable Masculino</div></div>
+    <div class="cstats"><div><div class="sv">52</div><div class="sl">Semanas</div></div><div><div class="sv">18+</div><div class="sl">Comps.</div></div><div><div class="sv">Live</div><div class="sl">Wellness</div></div></div>
+    <div class="cfoot"><div class="status"><div class="dot"></div>En tiempo real</div><div class="arr">→</div></div>
+  </a>
+  <div></div><div></div>
+
+</div>
+
+<footer>
+  <div class="ft">Esgrima Nacional · 2025–2026</div>
+  <div class="ft" id="fd"></div>
+</footer>
+<script>document.getElementById('fd').textContent='Actualizado '+new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'});</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').then(r=>console.log('SW registered')).catch(e=>console.log('SW error:',e));
+  });
+}
+</script>
+</body>
+</html>
