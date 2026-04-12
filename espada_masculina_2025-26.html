@@ -1364,7 +1364,8 @@ function T(id){
 async function forceSave(){
   const btn=event.target;
   btn.disabled=true;
-  const total=Math.ceil(S.weeks.length/15)+Math.ceil(S.comps.length/10);
+  const daysMonths=S.days?Object.keys(S.days).reduce((acc,k)=>{const m=k.split('-').slice(0,2).join('-');acc.add(m);return acc;},new Set()).size:0;
+  const total=Math.ceil(S.weeks.length/15)+Math.ceil(S.comps.length/10)+daysMonths;
   let done=0;
   const upd=()=>{btn.textContent='☁ Guardando '+Math.round(done/total*100)+'%';};
   upd();
@@ -1380,6 +1381,22 @@ async function forceSave(){
       const cd=encodeURIComponent(JSON.stringify({comps:batch,offset:i,total:S.comps.length}));
       await jsonp(SCRIPT_URL+'?action=saveChunk&team='+STORE_KEY+'&chunk=comps&data='+cd);
       done++;upd();
+    }
+    // Save days grouped by month
+    if(S.days&&Object.keys(S.days).length>0){
+      const byMonth={};
+      Object.entries(S.days).forEach(([k,v])=>{
+        // key format: YYYY-MM-DD or mes-day
+        const parts=k.split('-');
+        const monthKey=parts.slice(0,2).join('-');
+        if(!byMonth[monthKey])byMonth[monthKey]=[];
+        byMonth[monthKey].push({k,v});
+      });
+      for(const [month,entries] of Object.entries(byMonth)){
+        const dd=encodeURIComponent(JSON.stringify({month,entries}));
+        await jsonp(SCRIPT_URL+'?action=saveChunk&team='+STORE_KEY+'&chunk=days&data='+dd);
+        done++;upd();
+      }
     }
     toast('✓ Datos guardados en Google Sheet');
     const ss=document.getElementById('sync-status');
