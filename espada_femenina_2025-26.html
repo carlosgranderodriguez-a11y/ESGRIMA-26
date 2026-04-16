@@ -63,7 +63,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
 .cdh{font-family:var(--fm);font-size:10px;color:var(--mu);text-align:center;padding:3px 0;letter-spacing:.06em}
 .wr{display:grid;grid-template-columns:50px repeat(7,minmax(0,1fr));gap:3px;margin-bottom:3px}
 .wl{font-family:var(--fm);font-size:9px;color:var(--mu);display:flex;align-items:center;justify-content:center}
-.cd{border-radius:4px;padding:8px 6px;min-height:90px;border:1px solid transparent;transition:opacity .15s}.cd:hover{opacity:.85}
+.cd{border-radius:4px;padding:8px 6px;min-height:115px;border:1px solid transparent;transition:opacity .15s}.cd:hover{opacity:.85}
 .cd.emp{background:rgba(255,255,255,.02)}
 .cd.phA{background:rgba(80,240,144,.07);border-color:rgba(80,240,144,.14)}
 .cd.phAp{background:rgba(80,240,144,.11);border-color:rgba(80,240,144,.22)}
@@ -148,6 +148,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
     <div class="ntab" onclick="T('cal')">Calendario</div>
     <div class="ntab" onclick="T('tmp')">Temporada</div>
     <div class="ntab" onclick="T('ale')">Alertas</div>
+    <div class="ntab" onclick="T('tst')">Tests</div>
     <div class="ntab adm" onclick="T('adm')">⚙ Gestión</div>
   </div>
 </nav>
@@ -292,8 +293,11 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
           <option value="C">C — Competición</option><option value="RC">RC — Realiz. + Comp.</option>
         </select>
       </div>
-      <div class="fg"><label>RPE PLANIFICADO</label>
+      <div class="fg"><label style="color:#50c8f0">RPE FÍSICO</label>
         <input id="dp-rpe" type="number" step="0.1" min="1" max="10" placeholder="ej. 3.5">
+      </div>
+      <div class="fg"><label style="color:#50f090">RPE ESGRIMA</label>
+        <input id="dp-rpe-esg" type="number" step="0.1" min="1" max="10" placeholder="ej. 3.5">
       </div>
     </div>
     <div class="fg" style="margin-bottom:14px"><label>NOTA DEL DÍA</label>
@@ -376,6 +380,84 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
   <div class="card">
     <div class="ct">Historial completo</div>
     <div id="ai-table"></div>
+  </div>
+</div>
+
+
+<!-- TESTS PANEL -->
+<div id="pnl-tst" class="pnl">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+    <div>
+      <div class="st">Tests Físicos</div>
+      <div class="ss">Evaluaciones periódicas del equipo</div>
+    </div>
+    <button onclick="openTestForm()" style="font-family:var(--fm);font-size:11px;padding:7px 14px;border-radius:6px;background:rgba(200,240,80,.1);border:1px solid rgba(200,240,80,.4);color:var(--ac);cursor:pointer">+ Añadir test</button>
+  </div>
+
+  <!-- Filters -->
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+    <span style="font-family:var(--fm);font-size:10px;color:var(--mu)">ATLETA:</span>
+    <select id="tst-filter-atl" onchange="renderTests()" style="font-family:var(--fm);font-size:11px;padding:4px 8px;border-radius:4px;background:var(--bg3);border:1px solid var(--bd);color:var(--tx)">
+      <option value="">Todos</option>
+    </select>
+    <span style="font-family:var(--fm);font-size:10px;color:var(--mu);margin-left:8px">MÉTRICA:</span>
+    <select id="tst-filter-met" onchange="renderTests()" style="font-family:var(--fm);font-size:11px;padding:4px 8px;border-radius:4px;background:var(--bg3);border:1px solid var(--bd);color:var(--tx)">
+      <option value="CMJ_salto">CMJ Salto</option>
+      <option value="CMJ_fuerza">CMJ Fuerza</option>
+      <option value="ISO_SQ">ISO SQ</option>
+      <option value="DSI">DSI</option>
+      <option value="SQJ">SQJ</option>
+      <option value="HOP_RSI">HOP RSI</option>
+      <option value="SL_asim">Asimetría</option>
+      <option value="Reactividad">Reactividad</option>
+    </select>
+  </div>
+
+  <!-- Chart -->
+  <div class="card mb">
+    <div class="ct" id="tst-chart-title">Evolución</div>
+    <div style="position:relative;height:200px"><canvas id="tst-chart"></canvas></div>
+  </div>
+
+  <!-- Table -->
+  <div class="card">
+    <div class="ct">Registros</div>
+    <div id="tst-table" style="overflow-x:auto"></div>
+  </div>
+
+  <!-- Form overlay -->
+  <div id="tst-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;align-items:center;justify-content:center" onclick="if(event.target===this)closeTestForm()">
+    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:24px;width:100%;max-width:600px;margin:16px;max-height:90vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="font-family:var(--fh);font-size:18px;font-weight:700">Nuevo Test</div>
+        <button onclick="closeTestForm()" style="background:none;border:1px solid var(--bd);color:var(--mu);width:30px;height:30px;border-radius:6px;cursor:pointer">×</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="fg"><label>FECHA *</label><input id="tf-fecha" type="date"></div>
+        <div class="fg"><label>ATLETA *</label>
+          <select id="tf-atleta" style="font-family:var(--fm);font-size:12px;padding:6px;border-radius:4px;background:var(--bg3);border:1px solid var(--bd);color:var(--tx);width:100%">
+            <option value="">— seleccionar —</option>
+          </select>
+        </div>
+        <div class="fg"><label style="color:#c8f050">CMJ Salto (cm)</label><input id="tf-CMJ_salto" type="number" step="0.1" placeholder="ej. 40.1"></div>
+        <div class="fg"><label style="color:#50c8f0">CMJ Fuerza (N/kg)</label><input id="tf-CMJ_fuerza" type="number" step="0.1" placeholder="ej. 26.3"></div>
+        <div class="fg"><label style="color:#f0a050">ISO SQ (N/kg)</label><input id="tf-ISO_SQ" type="number" step="0.01" placeholder="ej. 46.02"></div>
+        <div class="fg"><label style="color:#d060f0">DSI</label><input id="tf-DSI" type="number" step="0.01" placeholder="auto si CMJ/ISO"></div>
+        <div class="fg"><label style="color:#50f090">SQJ (cm)</label><input id="tf-SQJ" type="number" step="0.1" placeholder="ej. 33.4"></div>
+        <div class="fg"><label style="color:#f08080">HOP RSI</label><input id="tf-HOP_RSI" type="number" step="0.01" placeholder="ej. 1.51"></div>
+        <div class="fg"><label style="color:#f0c050">HOP Distancia (cm)</label><input id="tf-HOP_CM" type="number" step="0.1" placeholder="ej. 33.1"></div>
+        <div class="fg"><label style="color:#80c8f0">Single Leg Izq</label><input id="tf-SL_izq" type="number" step="0.1" placeholder="ej. 19"></div>
+        <div class="fg"><label style="color:#80f0c8">Single Leg Der</label><input id="tf-SL_der" type="number" step="0.1" placeholder="ej. 15.2"></div>
+        <div class="fg"><label style="color:#c8f050">Reactividad Esgrima (s)</label><input id="tf-Reactividad" type="number" step="0.01" placeholder="ej. 6.16"></div>
+      </div>
+      <div class="fg" style="margin-bottom:14px"><label>CONCLUSIONES</label>
+        <textarea id="tf-Conclusiones" rows="3" placeholder="Observaciones del test..." style="width:100%;font-family:var(--fm);font-size:12px;padding:8px;border-radius:4px;background:var(--bg3);border:1px solid var(--bd);color:var(--tx);resize:vertical"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button onclick="closeTestForm()" style="font-family:var(--fm);font-size:11px;padding:7px 14px;border-radius:4px;background:var(--bg3);border:1px solid var(--bd);color:var(--mu);cursor:pointer">Cancelar</button>
+        <button onclick="saveTestData()" style="font-family:var(--fm);font-size:11px;padding:7px 14px;border-radius:4px;background:rgba(200,240,80,.1);border:1px solid rgba(200,240,80,.4);color:var(--ac);cursor:pointer">Guardar test</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -464,70 +546,15 @@ const ABG=['rgba(200,240,80,.15)','rgba(80,200,240,.15)','rgba(240,160,80,.15)',
 // ═══════════════════════════════════════
 // DEFAULT DATA
 // ═══════════════════════════════════════
-const DCMPS=[
-  {id:1,name:'Satélite Barcelona',mes:'Oct 2025',sem:8,dia:null,dia_fin:null,tipo:'Satélite',cat:'Senior',imp:'media',lugar:'Barcelona',notas:''},
-  {id:2,name:'Conc. Intern. Sant Cugat',mes:'Oct 2025',sem:9,dia:null,dia_fin:null,tipo:'Circuito',cat:'Senior',imp:'media',lugar:'Sant Cugat',notas:''},
-  {id:3,name:'Copa Mundo Mallorca',mes:'Nov 2025',sem:10,dia:null,dia_fin:null,tipo:'Copa Mundo',cat:'Senior',imp:'alta',lugar:'Mallorca',notas:'Poules + tablón + equipos'},
-  {id:4,name:'Vancouver GP',mes:'Dic 2025',sem:14,dia:null,dia_fin:null,tipo:'GP',cat:'Senior',imp:'alta',lugar:'Vancouver',notas:''},
-  {id:5,name:'Copa Mundo Korea',mes:'Dic 2025',sem:14,dia:null,dia_fin:null,tipo:'Copa Mundo',cat:'Senior',imp:'alta',lugar:'Korea',notas:'Chicas'},
-  {id:6,name:'Copa Mundo Japón',mes:'Dic 2025',sem:14,dia:null,dia_fin:null,tipo:'Copa Mundo',cat:'Senior',imp:'alta',lugar:'Japón',notas:'Chicos'},
-  {id:7,name:'Conc. Almería PFCAR',mes:'Dic 2025',sem:17,dia:null,dia_fin:null,tipo:'PFCAR',cat:'Senior',imp:'media',lugar:'Almería',notas:''},
-  {id:8,name:'Fujairah GP',mes:'Ene 2026',sem:19,dia:null,dia_fin:null,tipo:'GP',cat:'Senior',imp:'alta',lugar:'Fujairah',notas:''},
-  {id:9,name:'Copa Mundo Hong Kong',mes:'Ene 2026',sem:19,dia:null,dia_fin:null,tipo:'Copa Mundo',cat:'Senior',imp:'alta',lugar:'Hong Kong',notas:''},
-  {id:10,name:'Copa Mundo París',mes:'Ene 2026',sem:19,dia:null,dia_fin:null,tipo:'Copa Mundo',cat:'Senior',imp:'alta',lugar:'París',notas:''},
-  {id:11,name:'Doha GP',mes:'Ene 2026',sem:21,dia:null,dia_fin:null,tipo:'GP',cat:'Senior',imp:'alta',lugar:'Doha',notas:''},
-  {id:12,name:'Heidenheim GP',mes:'Feb 2026',sem:23,dia:null,dia_fin:null,tipo:'GP',cat:'Senior',imp:'alta',lugar:'Heidenheim',notas:''},
-  {id:13,name:'Budapest GP',mes:'Mar 2026',sem:27,dia:null,dia_fin:null,tipo:'GP',cat:'Senior',imp:'alta',lugar:'Budapest',notas:''},
-  {id:14,name:'Marrakech GP',mes:'Mar 2026',sem:29,dia:null,dia_fin:null,tipo:'GP',cat:'Senior',imp:'alta',lugar:'Marrakech',notas:''},
-  {id:15,name:'Bogotá GP',mes:'May 2026',sem:36,dia:null,dia_fin:null,tipo:'GP',cat:'Senior',imp:'alta',lugar:'Bogotá',notas:''},
-  {id:16,name:'Berna GP',mes:'May 2026',sem:38,dia:null,dia_fin:null,tipo:'GP',cat:'Senior',imp:'alta',lugar:'Berna',notas:''},
-  {id:17,name:'Cto. Europa Senior Tallin',mes:'Jun 2026',sem:42,dia:null,dia_fin:null,tipo:'Europeo',cat:'Senior',imp:'alta',lugar:'Tallin',notas:''},
-  {id:18,name:'Cto. Mundo Senior Hong Kong',mes:'Jul 2026',sem:46,dia:null,dia_fin:null,tipo:'Mundial',cat:'Senior',imp:'alta',lugar:'Hong Kong',notas:''},
-  {id:19,name:'JJ del Mediterráneo',mes:'Ago 2026',sem:51,dia:null,dia_fin:null,tipo:'JJMM',cat:'Senior',imp:'alta',lugar:'',notas:''},
-  {id:20,name:'CC Budapest',mes:'Nov 2025',sem:10,dia:null,dia_fin:null,tipo:'Circuito',cat:'M17',imp:'media',lugar:'Budapest',notas:''},
-  {id:21,name:'Lausanne Sub23',mes:'Nov 2025',sem:11,dia:null,dia_fin:null,tipo:'Circuito',cat:'Sub23',imp:'media',lugar:'Lausanne',notas:''},
-  {id:22,name:'CC Grenoble',mes:'Nov 2025',sem:12,dia:null,dia_fin:null,tipo:'Circuito',cat:'M17',imp:'media',lugar:'Grenoble',notas:''},
-  {id:23,name:'JWC Basilea M20',mes:'Dic 2025',sem:16,dia:null,dia_fin:null,tipo:'Campeonato',cat:'M20',imp:'alta',lugar:'Basilea',notas:''},
-  {id:24,name:'CC Bratislava',mes:'Dic 2025',sem:17,dia:null,dia_fin:null,tipo:'Circuito',cat:'M17',imp:'media',lugar:'Bratislava',notas:''},
-  {id:25,name:'Berlín Sub23',mes:'Ene 2026',sem:19,dia:null,dia_fin:null,tipo:'Circuito',cat:'Sub23',imp:'media',lugar:'Berlín',notas:'10-11/1'},
-  {id:26,name:'JWC El Cairo M20',mes:'Ene 2026',sem:21,dia:null,dia_fin:null,tipo:'Campeonato',cat:'M20',imp:'alta',lugar:'El Cairo',notas:''},
-  {id:27,name:'JWC Versoix M20',mes:'Feb 2026',sem:24,dia:null,dia_fin:null,tipo:'Campeonato',cat:'M20',imp:'alta',lugar:'Versoix',notas:''},
-  {id:28,name:'Cto Europa M17/M20 Tiblisi',mes:'Feb 2026',sem:25,dia:null,dia_fin:null,tipo:'Europeo',cat:'M17',imp:'alta',lugar:'Tiblisi',notas:'M17 y M20'},
-  {id:29,name:'Cto Mundo M17/M20 Río',mes:'Mar 2026',sem:31,dia:null,dia_fin:null,tipo:'Mundial',cat:'M17',imp:'alta',lugar:'Río de Janeiro',notas:''},
-  {id:30,name:'Cto. Europa Sub23 Cagliari',mes:'Abr 2026',sem:35,dia:null,dia_fin:null,tipo:'Europeo',cat:'Sub23',imp:'alta',lugar:'Cagliari',notas:''},
-  {id:31,name:'Conc. PFCAR Melgar',mes:'Sep 2025',sem:1,dia:null,dia_fin:null,tipo:'PFCAR',cat:'Nacional',imp:'media',lugar:'Melgar',notas:''},
-  {id:32,name:'Tnr Amposta M20',mes:'Sep 2025',sem:3,dia:null,dia_fin:null,tipo:'Torneo',cat:'Nacional',imp:'baja',lugar:'Amposta',notas:''},
-  {id:33,name:'Tnr Medina ABS',mes:'Sep 2025',sem:5,dia:null,dia_fin:null,tipo:'Torneo',cat:'Nacional',imp:'baja',lugar:'Medina',notas:''},
-  {id:34,name:'Tnr Alcobendas M17',mes:'Oct 2025',sem:9,dia:null,dia_fin:null,tipo:'Torneo',cat:'Nacional',imp:'baja',lugar:'Alcobendas',notas:''},
-  {id:35,name:'Tnr Zaratan M20',mes:'Nov 2025',sem:13,dia:null,dia_fin:null,tipo:'Torneo',cat:'Nacional',imp:'baja',lugar:'Zaratan',notas:''},
-  {id:36,name:'Conc. PFCAR Almería',mes:'Dic 2025',sem:17,dia:null,dia_fin:null,tipo:'PFCAR',cat:'Nacional',imp:'media',lugar:'Almería',notas:''},
-  {id:37,name:'Tnr M17',mes:'Ene 2026',sem:21,dia:null,dia_fin:null,tipo:'Torneo',cat:'Nacional',imp:'baja',lugar:'',notas:''},
-  {id:38,name:'Tnr Albacete ABS',mes:'Feb 2026',sem:25,dia:null,dia_fin:null,tipo:'Torneo',cat:'Nacional',imp:'baja',lugar:'Albacete',notas:''},
-  {id:39,name:'Cto. España M20/M23',mes:'Mar 2026',sem:27,dia:null,dia_fin:null,tipo:'Campeonato',cat:'Nacional',imp:'alta',lugar:'',notas:''},
-  {id:40,name:'Tnr Logroño ABS',mes:'Mar 2026',sem:29,dia:26,tipo:'Torneo',cat:'Nacional',imp:'baja',lugar:'Logroño',notas:''},
-  {id:41,name:'Cto España ABS',mes:'Jun 2026',sem:40,dia:null,dia_fin:null,tipo:'Campeonato',cat:'Nacional',imp:'alta',lugar:'',notas:''},
-];
-const DWKS=[
-  {id:1,num:1,mes:'Sep 2025',fase:'A',rpe:2.4,notas:'Inicio temporada'},{id:2,num:2,mes:'Sep 2025',fase:'A+',rpe:5.0,notas:''},{id:3,num:3,mes:'Sep 2025',fase:'A++',rpe:null,notas:''},{id:4,num:4,mes:'Sep 2025',fase:'C',rpe:3.2,notas:''},{id:5,num:5,mes:'Sep 2025',fase:'T',rpe:3.0,notas:''},
-  {id:6,num:6,mes:'Oct 2025',fase:'R',rpe:3.2,notas:''},{id:7,num:7,mes:'Oct 2025',fase:'C',rpe:null,notas:''},{id:8,num:8,mes:'Oct 2025',fase:'RC',rpe:null,notas:''},{id:9,num:9,mes:'Oct 2025',fase:'A',rpe:null,notas:''},
-  {id:10,num:10,mes:'Nov 2025',fase:'C',rpe:null,notas:''},{id:11,num:11,mes:'Nov 2025',fase:'A',rpe:3.0,notas:''},{id:12,num:12,mes:'Nov 2025',fase:'A+',rpe:4.0,notas:''},{id:13,num:13,mes:'Nov 2025',fase:'T',rpe:3.5,notas:''},
-  {id:14,num:14,mes:'Dic 2025',fase:'RC',rpe:null,notas:''},{id:15,num:15,mes:'Dic 2025',fase:'A',rpe:3.0,notas:''},{id:16,num:16,mes:'Dic 2025',fase:'C',rpe:null,notas:''},{id:17,num:17,mes:'Dic 2025',fase:'A',rpe:null,notas:''},{id:18,num:18,mes:'Dic 2025',fase:'T',rpe:2.0,notas:'Transición Navidad'},
-  {id:19,num:19,mes:'Ene 2026',fase:'RC',rpe:null,notas:''},{id:20,num:20,mes:'Ene 2026',fase:'A',rpe:3.0,notas:''},{id:21,num:21,mes:'Ene 2026',fase:'T',rpe:3.5,notas:''},{id:22,num:22,mes:'Ene 2026',fase:'R',rpe:2.5,notas:''},
-  {id:23,num:23,mes:'Feb 2026',fase:'C',rpe:null,notas:''},{id:24,num:24,mes:'Feb 2026',fase:'A',rpe:3.5,notas:''},{id:25,num:25,mes:'Feb 2026',fase:'A+',rpe:4.0,notas:''},{id:26,num:26,mes:'Feb 2026',fase:'T',rpe:3.5,notas:''},
-  {id:27,num:27,mes:'Mar 2026',fase:'RC',rpe:null,notas:''},{id:28,num:28,mes:'Mar 2026',fase:'A',rpe:3.0,notas:''},{id:29,num:29,mes:'Mar 2026',fase:'RC',rpe:null,notas:''},{id:30,num:30,mes:'Mar 2026',fase:'A',rpe:3.5,notas:''},{id:31,num:31,mes:'Mar 2026',fase:'A+',rpe:4.0,notas:''},
-  {id:32,num:32,mes:'Abr 2026',fase:'A++',rpe:4.5,notas:''},{id:33,num:33,mes:'Abr 2026',fase:'T',rpe:3.5,notas:''},{id:34,num:34,mes:'Abr 2026',fase:'R',rpe:3.0,notas:''},{id:35,num:35,mes:'Abr 2026',fase:'C',rpe:null,notas:''},
-  {id:36,num:36,mes:'May 2026',fase:'RC',rpe:null,notas:''},{id:37,num:37,mes:'May 2026',fase:'A',rpe:3.5,notas:''},{id:38,num:38,mes:'May 2026',fase:'RC',rpe:null,notas:''},{id:39,num:39,mes:'May 2026',fase:'A',rpe:3.0,notas:''},
-  {id:40,num:40,mes:'Jun 2026',fase:'C',rpe:null,notas:''},{id:41,num:41,mes:'Jun 2026',fase:'T',rpe:3.5,notas:''},{id:42,num:42,mes:'Jun 2026',fase:'RC',rpe:null,notas:''},{id:43,num:43,mes:'Jun 2026',fase:'A',rpe:2.5,notas:''},
-  {id:44,num:44,mes:'Jul 2026',fase:'A+',rpe:3.5,notas:''},{id:45,num:45,mes:'Jul 2026',fase:'T',rpe:3.0,notas:''},{id:46,num:46,mes:'Jul 2026',fase:'RC',rpe:null,notas:''},{id:47,num:47,mes:'Jul 2026',fase:'T',rpe:2.0,notas:''},
-  {id:48,num:48,mes:'Ago 2026',fase:'A',rpe:2.5,notas:''},{id:49,num:49,mes:'Ago 2026',fase:'A+',rpe:3.5,notas:''},{id:50,num:50,mes:'Ago 2026',fase:'T',rpe:3.0,notas:''},{id:51,num:51,mes:'Ago 2026',fase:'RC',rpe:null,notas:''},{id:52,num:52,mes:'Ago 2026',fase:'T',rpe:1.5,notas:'Fin temporada'},
-];
+const DCMPS=[{"id": 1, "name": "Satélite Barcelona", "mes": "Oct 2025", "sem": 8, "dia": null, "dia_fin": null, "tipo": "Satélite", "cat": "Senior", "imp": "media", "lugar": "Barcelona", "notas": ""}, {"id": 2, "name": "Conc. Intern. Sant Cugat", "mes": "Oct 2025", "sem": 9, "dia": null, "dia_fin": null, "tipo": "Circuito", "cat": "Senior", "imp": "media", "lugar": "Sant Cugat", "notas": ""}, {"id": 3, "name": "Copa Mundo Mallorca", "mes": "Nov 2025", "sem": 10, "dia": null, "dia_fin": null, "tipo": "Copa Mundo", "cat": "Senior", "imp": "alta", "lugar": "Mallorca", "notas": "Poules + tablón + equipos"}, {"id": 4, "name": "Vancouver GP", "mes": "Dic 2025", "sem": 14, "dia": null, "dia_fin": null, "tipo": "GP", "cat": "Senior", "imp": "alta", "lugar": "Vancouver", "notas": ""}, {"id": 5, "name": "Copa Mundo Korea", "mes": "Dic 2025", "sem": 14, "dia": null, "dia_fin": null, "tipo": "Copa Mundo", "cat": "Senior", "imp": "alta", "lugar": "Korea", "notas": "Chicas"}, {"id": 6, "name": "Copa Mundo Japón", "mes": "Dic 2025", "sem": 14, "dia": null, "dia_fin": null, "tipo": "Copa Mundo", "cat": "Senior", "imp": "alta", "lugar": "Japón", "notas": "Chicos"}, {"id": 7, "name": "Conc. Almería PFCAR", "mes": "Dic 2025", "sem": 17, "dia": null, "dia_fin": null, "tipo": "PFCAR", "cat": "Senior", "imp": "media", "lugar": "Almería", "notas": ""}, {"id": 8, "name": "Fujairah GP", "mes": "Ene 2026", "sem": 19, "dia": null, "dia_fin": null, "tipo": "GP", "cat": "Senior", "imp": "alta", "lugar": "Fujairah", "notas": ""}, {"id": 9, "name": "Copa Mundo Hong Kong", "mes": "Ene 2026", "sem": 19, "dia": null, "dia_fin": null, "tipo": "Copa Mundo", "cat": "Senior", "imp": "alta", "lugar": "Hong Kong", "notas": ""}, {"id": 10, "name": "Copa Mundo París", "mes": "Ene 2026", "sem": 19, "dia": null, "dia_fin": null, "tipo": "Copa Mundo", "cat": "Senior", "imp": "alta", "lugar": "París", "notas": ""}, {"id": 11, "name": "Doha GP", "mes": "Ene 2026", "sem": 21, "dia": null, "dia_fin": null, "tipo": "GP", "cat": "Senior", "imp": "alta", "lugar": "Doha", "notas": ""}, {"id": 12, "name": "Heidenheim GP", "mes": "Feb 2026", "sem": 23, "dia": null, "dia_fin": null, "tipo": "GP", "cat": "Senior", "imp": "alta", "lugar": "Heidenheim", "notas": ""}, {"id": 13, "name": "Budapest GP", "lugar": "Budapest", "mes": "Abr 2026", "sem": 33, "dia": 17, "dia_fin": 20, "mes_fin": null, "tipo": "GP", "imp": "alta", "cat": "Senior", "notas": ""}, {"id": 14, "name": "Marrakech GP", "mes": "Mar 2026", "sem": 29, "dia": null, "dia_fin": null, "tipo": "GP", "cat": "Senior", "imp": "alta", "lugar": "Marrakech", "notas": ""}, {"id": 15, "name": "Bogotá GP", "mes": "May 2026", "sem": 36, "dia": null, "dia_fin": null, "tipo": "GP", "cat": "Senior", "imp": "alta", "lugar": "Bogotá", "notas": ""}, {"id": 16, "name": "Berna GP", "mes": "May 2026", "sem": 38, "dia": null, "dia_fin": null, "tipo": "GP", "cat": "Senior", "imp": "alta", "lugar": "Berna", "notas": ""}, {"id": 17, "name": "Cto. Europa Senior Tallin", "mes": "Jun 2026", "sem": 42, "dia": null, "dia_fin": null, "tipo": "Europeo", "cat": "Senior", "imp": "alta", "lugar": "Tallin", "notas": ""}, {"id": 18, "name": "Cto. Mundo Senior Hong Kong", "mes": "Jul 2026", "sem": 46, "dia": null, "dia_fin": null, "tipo": "Mundial", "cat": "Senior", "imp": "alta", "lugar": "Hong Kong", "notas": ""}, {"id": 19, "name": "JJ del Mediterráneo", "mes": "Ago 2026", "sem": 51, "dia": null, "dia_fin": null, "tipo": "JJMM", "cat": "Senior", "imp": "alta", "lugar": "", "notas": ""}, {"id": 20, "name": "CC Budapest", "mes": "Nov 2025", "sem": 10, "dia": null, "dia_fin": null, "tipo": "Circuito", "cat": "M17", "imp": "media", "lugar": "Budapest", "notas": ""}, {"id": 21, "name": "Lausanne Sub23", "mes": "Nov 2025", "sem": 11, "dia": null, "dia_fin": null, "tipo": "Circuito", "cat": "Sub23", "imp": "media", "lugar": "Lausanne", "notas": ""}, {"id": 22, "name": "CC Grenoble", "mes": "Nov 2025", "sem": 12, "dia": null, "dia_fin": null, "tipo": "Circuito", "cat": "M17", "imp": "media", "lugar": "Grenoble", "notas": ""}, {"id": 23, "name": "JWC Basilea M20", "mes": "Dic 2025", "sem": 16, "dia": null, "dia_fin": null, "tipo": "Campeonato", "cat": "M20", "imp": "alta", "lugar": "Basilea", "notas": ""}, {"id": 24, "name": "CC Bratislava", "mes": "Dic 2025", "sem": 17, "dia": null, "dia_fin": null, "tipo": "Circuito", "cat": "M17", "imp": "media", "lugar": "Bratislava", "notas": ""}, {"id": 25, "name": "Berlín Sub23", "mes": "Ene 2026", "sem": 19, "dia": null, "dia_fin": null, "tipo": "Circuito", "cat": "Sub23", "imp": "media", "lugar": "Berlín", "notas": "10-11/1"}, {"id": 26, "name": "JWC El Cairo M20", "mes": "Ene 2026", "sem": 21, "dia": null, "dia_fin": null, "tipo": "Campeonato", "cat": "M20", "imp": "alta", "lugar": "El Cairo", "notas": ""}, {"id": 27, "name": "JWC Versoix M20", "mes": "Feb 2026", "sem": 24, "dia": null, "dia_fin": null, "tipo": "Campeonato", "cat": "M20", "imp": "alta", "lugar": "Versoix", "notas": ""}, {"id": 28, "name": "Cto Europa M17/M20 Tiblisi", "mes": "Feb 2026", "sem": 25, "dia": null, "dia_fin": null, "tipo": "Europeo", "cat": "M17", "imp": "alta", "lugar": "Tiblisi", "notas": "M17 y M20"}, {"id": 29, "name": "Cto Mundo M17/M20 Río", "lugar": "Río de Janeiro", "mes": "Abr 2026", "sem": 31, "dia": 5, "dia_fin": 10, "mes_fin": null, "tipo": "Mundial", "imp": "alta", "cat": "M20", "notas": ""}, {"id": 30, "name": "Cto. Europa Sub23 Cagliari", "mes": "Abr 2026", "sem": 35, "dia": null, "dia_fin": null, "tipo": "Europeo", "cat": "Sub23", "imp": "alta", "lugar": "Cagliari", "notas": ""}, {"id": 31, "name": "Conc. PFCAR Melgar", "mes": "Sep 2025", "sem": 1, "dia": null, "dia_fin": null, "tipo": "PFCAR", "cat": "Nacional", "imp": "media", "lugar": "Melgar", "notas": ""}, {"id": 32, "name": "Tnr Amposta M20", "mes": "Sep 2025", "sem": 3, "dia": null, "dia_fin": null, "tipo": "Torneo", "cat": "Nacional", "imp": "baja", "lugar": "Amposta", "notas": ""}, {"id": 33, "name": "Tnr Medina ABS", "mes": "Sep 2025", "sem": 5, "dia": null, "dia_fin": null, "tipo": "Torneo", "cat": "Nacional", "imp": "baja", "lugar": "Medina", "notas": ""}, {"id": 34, "name": "Tnr Alcobendas M17", "mes": "Oct 2025", "sem": 9, "dia": null, "dia_fin": null, "tipo": "Torneo", "cat": "Nacional", "imp": "baja", "lugar": "Alcobendas", "notas": ""}, {"id": 35, "name": "Tnr Zaratan M20", "mes": "Nov 2025", "sem": 13, "dia": null, "dia_fin": null, "tipo": "Torneo", "cat": "Nacional", "imp": "baja", "lugar": "Zaratan", "notas": ""}, {"id": 36, "name": "Conc. PFCAR Almería", "mes": "Dic 2025", "sem": 17, "dia": null, "dia_fin": null, "tipo": "PFCAR", "cat": "Nacional", "imp": "media", "lugar": "Almería", "notas": ""}, {"id": 37, "name": "Tnr M17", "mes": "Ene 2026", "sem": 21, "dia": null, "dia_fin": null, "tipo": "Torneo", "cat": "Nacional", "imp": "baja", "lugar": "", "notas": ""}, {"id": 38, "name": "Tnr Albacete ABS", "mes": "Feb 2026", "sem": 25, "dia": null, "dia_fin": null, "tipo": "Torneo", "cat": "Nacional", "imp": "baja", "lugar": "Albacete", "notas": ""}, {"id": 39, "name": "Cto. España M20/M23", "mes": "Mar 2026", "sem": 27, "dia": null, "dia_fin": null, "tipo": "Campeonato", "cat": "Nacional", "imp": "alta", "lugar": "", "notas": ""}, {"id": 40, "name": "Tnr Logroño ABS", "mes": "Mar 2026", "sem": 29, "dia": 26, "tipo": "Torneo", "cat": "Nacional", "imp": "baja", "lugar": "Logroño", "notas": ""}, {"id": 41, "name": "Cto España ABS", "mes": "Jun 2026", "sem": 40, "dia": null, "dia_fin": null, "tipo": "Campeonato", "cat": "Nacional", "imp": "alta", "lugar": "", "notas": ""}];
+const DWKS=[{"id": 1, "num": 1, "mes": "Sep 2025", "fase": "A", "rpe": 2.4, "notas": "Inicio temporada"}, {"id": 2, "num": 2, "mes": "Sep 2025", "fase": "A+", "rpe": 5, "notas": ""}, {"id": 3, "num": 3, "mes": "Sep 2025", "fase": "A++", "rpe": null, "notas": ""}, {"id": 4, "num": 4, "mes": "Sep 2025", "fase": "C", "rpe": 3.2, "notas": ""}, {"id": 5, "num": 5, "mes": "Sep 2025", "fase": "T", "rpe": 3, "notas": ""}, {"id": 6, "num": 6, "mes": "Oct 2025", "fase": "R", "rpe": 3.2, "notas": ""}, {"id": 7, "num": 7, "mes": "Oct 2025", "fase": "C", "rpe": null, "notas": ""}, {"id": 8, "num": 8, "mes": "Oct 2025", "fase": "RC", "rpe": null, "notas": ""}, {"id": 9, "num": 9, "mes": "Oct 2025", "fase": "A", "rpe": null, "notas": ""}, {"id": 10, "num": 10, "mes": "Nov 2025", "fase": "C", "rpe": null, "notas": ""}, {"id": 11, "num": 11, "mes": "Nov 2025", "fase": "A", "rpe": 3, "notas": ""}, {"id": 12, "num": 12, "mes": "Nov 2025", "fase": "A+", "rpe": 4, "notas": ""}, {"id": 13, "num": 13, "mes": "Nov 2025", "fase": "T", "rpe": 3.5, "notas": ""}, {"id": 14, "num": 14, "mes": "Dic 2025", "fase": "RC", "rpe": null, "notas": ""}, {"id": 15, "num": 15, "mes": "Dic 2025", "fase": "A", "rpe": 3, "notas": ""}, {"id": 16, "num": 16, "mes": "Dic 2025", "fase": "C", "rpe": null, "notas": ""}, {"id": 17, "num": 17, "mes": "Dic 2025", "fase": "A", "rpe": null, "notas": ""}, {"id": 18, "num": 18, "mes": "Dic 2025", "fase": "T", "rpe": 2, "notas": "Transición Navidad"}, {"id": 19, "num": 19, "mes": "Ene 2026", "fase": "RC", "rpe": null, "notas": ""}, {"id": 20, "num": 20, "mes": "Ene 2026", "fase": "A", "rpe": 3, "notas": ""}, {"id": 21, "num": 21, "mes": "Ene 2026", "fase": "T", "rpe": 3.5, "notas": ""}, {"id": 22, "num": 22, "mes": "Ene 2026", "fase": "R", "rpe": 2.5, "notas": ""}, {"id": 23, "num": 23, "mes": "Feb 2026", "fase": "C", "rpe": null, "notas": ""}, {"id": 24, "num": 24, "mes": "Feb 2026", "fase": "A", "rpe": 3.5, "notas": ""}, {"id": 25, "num": 25, "mes": "Feb 2026", "fase": "A+", "rpe": 4, "notas": ""}, {"id": 26, "num": 26, "mes": "Feb 2026", "fase": "T", "rpe": 3.5, "notas": ""}, {"id": 27, "num": 27, "mes": "Mar 2026", "fase": "RC", "rpe": null, "notas": ""}, {"id": 28, "num": 28, "mes": "Mar 2026", "fase": "A", "rpe": 3, "notas": ""}, {"id": 29, "num": 29, "mes": "Mar 2026", "fase": "RC", "rpe": null, "notas": ""}, {"id": 30, "num": 30, "mes": "Mar 2026", "fase": "A", "rpe": 3.5, "notas": ""}, {"id": 31, "num": 31, "mes": "Mar 2026", "fase": "A+", "rpe": 4, "notas": ""}, {"id": 32, "num": 32, "mes": "Abr 2026", "fase": "A++", "rpe": 4.5, "notas": ""}, {"id": 33, "num": 33, "mes": "Abr 2026", "fase": "T", "rpe": 3.5, "notas": ""}, {"id": 34, "num": 34, "mes": "Abr 2026", "fase": "R", "rpe": 3, "notas": ""}, {"id": 35, "num": 35, "mes": "Abr 2026", "fase": "C", "rpe": null, "notas": ""}, {"id": 36, "num": 36, "mes": "May 2026", "fase": "RC", "rpe": null, "notas": ""}, {"id": 37, "num": 37, "mes": "May 2026", "fase": "A", "rpe": 3.5, "notas": ""}, {"id": 38, "num": 38, "mes": "May 2026", "fase": "RC", "rpe": null, "notas": ""}, {"id": 39, "num": 39, "mes": "May 2026", "fase": "A", "rpe": 3, "notas": ""}, {"id": 40, "num": 40, "mes": "Jun 2026", "fase": "C", "rpe": null, "notas": ""}, {"id": 41, "num": 41, "mes": "Jun 2026", "fase": "T", "rpe": 3.5, "notas": ""}, {"id": 42, "num": 42, "mes": "Jun 2026", "fase": "RC", "rpe": null, "notas": ""}, {"id": 43, "num": 43, "mes": "Jun 2026", "fase": "A", "rpe": 2.5, "notas": ""}, {"id": 44, "num": 44, "mes": "Jul 2026", "fase": "A+", "rpe": 3.5, "notas": ""}, {"id": 45, "num": 45, "mes": "Jul 2026", "fase": "T", "rpe": 3, "notas": ""}, {"id": 46, "num": 46, "mes": "Jul 2026", "fase": "RC", "rpe": null, "notas": ""}, {"id": 47, "num": 47, "mes": "Jul 2026", "fase": "T", "rpe": 2, "notas": ""}, {"id": 48, "num": 48, "mes": "Ago 2026", "fase": "A", "rpe": 2.5, "notas": ""}, {"id": 49, "num": 49, "mes": "Ago 2026", "fase": "A+", "rpe": 3.5, "notas": ""}, {"id": 50, "num": 50, "mes": "Ago 2026", "fase": "T", "rpe": 3, "notas": ""}, {"id": 51, "num": 51, "mes": "Ago 2026", "fase": "RC", "rpe": null, "notas": ""}, {"id": 52, "num": 52, "mes": "Ago 2026", "fase": "T", "rpe": 1.5, "notas": "Fin temporada"}];
 const RPE_P=[{ws:'22/09',rpe:3.2},{ws:'29/09',rpe:3.7},{ws:'06/10',rpe:4.2},{ws:'13/10',rpe:5.0},{ws:'20/10',rpe:2.5},{ws:'27/10',rpe:2.0},{ws:'03/11',rpe:5.0},{ws:'10/11',rpe:5.0},{ws:'17/11',rpe:3.2},{ws:'24/11',rpe:5.0},{ws:'01/12',rpe:3.2},{ws:'08/12',rpe:3.7},{ws:'15/12',rpe:2.5},{ws:'22/12',rpe:5.0},{ws:'29/12',rpe:3.2},{ws:'05/01',rpe:5.0},{ws:'12/01',rpe:3.2},{ws:'19/01',rpe:2.5},{ws:'26/01',rpe:5.0},{ws:'02/02',rpe:3.2},{ws:'09/02',rpe:2.5},{ws:'16/02',rpe:2.0},{ws:'23/02',rpe:5.0},{ws:'02/03',rpe:3.2},{ws:'09/03',rpe:3.7},{ws:'16/03',rpe:2.5},{ws:'23/03',rpe:5.0},{ws:'30/03',rpe:3.2},{ws:'06/04',rpe:5.0},{ws:'13/04',rpe:3.2},{ws:'20/04',rpe:3.7},{ws:'27/04',rpe:4.2},{ws:'04/05',rpe:2.5},{ws:'11/05',rpe:2.0},{ws:'18/05',rpe:5.0},{ws:'25/05',rpe:5.0},{ws:'01/06',rpe:3.2},{ws:'08/06',rpe:5.0},{ws:'15/06',rpe:3.2},{ws:'22/06',rpe:5.0},{ws:'29/06',rpe:2.5},{ws:'06/07',rpe:5.0},{ws:'13/07',rpe:3.2},{ws:'20/07',rpe:3.7},{ws:'27/07',rpe:2.5},{ws:'03/08',rpe:5.0},{ws:'10/08',rpe:2.5},{ws:'17/08',rpe:3.2},{ws:'24/08',rpe:3.7},{ws:'31/08',rpe:2.5},{ws:'07/09',rpe:5.0},{ws:'14/09',rpe:2.5}];
 const MES_IDX=['Sep 2025','Oct 2025','Nov 2025','Dic 2025','Ene 2026','Feb 2026','Mar 2026','Abr 2026','May 2026','Jun 2026','Jul 2026','Ago 2026','Sep 2026'];
 
 // ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
-let S={comps:[],weeks:[],nid:200};
+let S={comps:JSON.parse(JSON.stringify(DCMPS)),weeks:JSON.parse(JSON.stringify(DWKS)),nid:200,days:{}};
 let ATHL=[],WKL=[],allRows=[],dfDays=7,hasCicloData=false;
 
 function loadS(){
@@ -544,23 +571,31 @@ function loadS(){
 async function syncFromSheet(){
   try{
     const j=await jsonp(SCRIPT_URL+'?action=load&team='+STORE_KEY);
-    if(j.data){
-      S=j.data;if(!S.days)S.days={};if(!S.comps)S.comps=JSON.parse(JSON.stringify(DCMPS));if(!S.weeks)S.weeks=JSON.parse(JSON.stringify(DWKS));
+    if(j.data&&j.data.comps&&j.data.comps.length>5&&j.data.weeks&&j.data.weeks.length>10){
+      // Valid data from Sheet - use it
+      S=j.data;
+      if(!S.days)S.days={};
+      if(!S.nid)S.nid=200;
       localStorage.setItem(STORE_KEY,JSON.stringify(S));
       bNext();
       if(built['cal'])bCal();
       if(built['tmp']){bTL();bTCtbl();}
       if(built['adm']){rAC();rAW();}
-      const ss=document.getElementById('sync-status');if(ss)ss.textContent='✓ Sincronizado con Sheet';
+      const ss=document.getElementById('sync-status');
+      if(ss){ss.textContent='✓ Sincronizado';ss.style.color='var(--ok)';}
+      console.log('Sheet OK: comps='+S.comps.length+' weeks='+S.weeks.length);
+    } else {
+      // Sheet empty or invalid - save current data to Sheet
+      console.log('Sheet vacío, guardando datos actuales...');
+      await saveToSheet();
+      const ss=document.getElementById('sync-status');
+      if(ss){ss.textContent='✓ Datos iniciales guardados';ss.style.color='var(--ok)';}
     }
   }catch(e){
-    const ss=document.getElementById('sync-status');if(ss){ss.textContent='⚠ Sin conexión al Sheet';ss.style.color='var(--wn)';}
+    console.log('Sin conexión al Sheet:',e.message);
+    const ss=document.getElementById('sync-status');
+    if(ss){ss.textContent='⚠ Sin conexión';ss.style.color='var(--wn)';}
   }
-}
-function saveS(){
-  try{localStorage.setItem(STORE_KEY,JSON.stringify(S));}catch(e){}
-  // Save to Sheet in background
-  saveToSheet();
 }
 async function saveToSheet(){
   try{
@@ -1274,6 +1309,7 @@ function openDayPanel(el){
   }
   document.getElementById('dp-fase').value=d.fase||wd.fase||'';
   document.getElementById('dp-rpe').value=d.rpe||wd.rpe||'';
+  document.getElementById('dp-rpe-esg').value=d.rpe_esg||'';
   document.getElementById('dp-nota').value=d.nota||'';
   const ov=document.getElementById('day-overlay');
   ov.style.display='flex';
@@ -1312,7 +1348,13 @@ function saveDayData(){
   const rpe=parseFloat(document.getElementById('dp-rpe').value)||null;
   const nota=document.getElementById('dp-nota').value.trim();
   if(fase||rpe||nota){
-    S.days[currentDayKey]={fase,rpe,nota};
+    const rpe_esg=parseFloat(document.getElementById('dp-rpe-esg').value)||null;
+    S.days[currentDayKey]={fase,rpe,nota,rpe_esg};
+    // Auto-save this day to Sheet
+    const month=currentDayKey.split('-').slice(0,2).join('-');
+    const entries=Object.entries(S.days).filter(([k])=>k.startsWith(month)).map(([k,v])=>({k,v}));
+    const dd=encodeURIComponent(JSON.stringify({month,entries}));
+    jsonp(SCRIPT_URL+'?action=saveChunk&team='+STORE_KEY+'&chunk=days&data='+dd).catch(()=>{});
   } else {
     delete S.days[currentDayKey];
   }
@@ -1355,6 +1397,7 @@ function T(id){
   if(id==='cal')bCal();
   if(id==='tmp'){bTL();bTCtbl();}
   if(id==='ale')bAle();
+  if(id==='tst'){if(!built['tst']){built['tst']=true;loadTests();populateTstFilters();}}
   if(id==='adm'){rAC();rAW();}
 }
 
@@ -1597,6 +1640,190 @@ function closeAthlDrawer(){
 </script>
 
 <script>
+
+// ── TESTS FÍSICOS ──────────────────────────────────────────
+let TESTS = [];
+let tstChart = null;
+const TST_FIELDS = [{"key": "CMJ_salto", "label": "CMJ Salto (cm)", "unit": "cm", "color": "#c8f050"}, {"key": "CMJ_fuerza", "label": "CMJ Fuerza (N/kg)", "unit": "N/kg", "color": "#50c8f0"}, {"key": "ISO_SQ", "label": "ISO SQ (N/kg)", "unit": "N/kg", "color": "#f0a050"}, {"key": "DSI", "label": "DSI", "unit": "", "color": "#d060f0"}, {"key": "SQJ", "label": "SQJ (cm)", "unit": "cm", "color": "#50f090"}, {"key": "HOP_RSI", "label": "HOP RSI", "unit": "", "color": "#f08080"}, {"key": "HOP_CM", "label": "HOP Distancia (cm)", "unit": "cm", "color": "#f0c050"}, {"key": "SL_izq", "label": "Single Leg Izq", "unit": "cm", "color": "#80c8f0"}, {"key": "SL_der", "label": "Single Leg Der", "unit": "cm", "color": "#80f0c8"}, {"key": "SL_asim", "label": "Asimetría (%)", "unit": "%", "color": "#f06060"}, {"key": "Reactividad", "label": "Reactividad Esgr.", "unit": "s", "color": "#c8f050"}];
+const TST_ATHLETES = {"esgrima26masc": ["Gerard Gonell", "Diego Rodriguez", "Rayan Rami", "Ricardo Sanchez", "Juan Pedro Romero", "Eugeni Gavalda", "Lucas Ramirez", "Pablo Ruiz", "Alvaro Fernandez Calleja"], "esgrima26fem": ["Dana Raposo", "Inés Garcia", "Daniela Pinyol", "Lucia Abajo", "Lola Estevez", "Maria Mateos"], "florete26masc": [], "florete26fem": [], "sable26masc": []};
+
+async function loadTests(){
+  try{
+    const j=await jsonp(SCRIPT_URL+'?action=loadTests&team='+STORE_KEY);
+    if(j.tests){
+      TESTS=j.tests;
+      renderTests();
+    }
+  }catch(e){
+    console.log('Error cargando tests:',e.message);
+  }
+}
+
+function renderTests(){
+  const atlFilter=document.getElementById('tst-filter-atl')?.value||'';
+  const metKey=document.getElementById('tst-filter-met')?.value||'CMJ_salto';
+  const metInfo=TST_FIELDS.find(f=>f.key===metKey)||TST_FIELDS[0];
+
+  // Filter
+  const filtered=atlFilter?TESTS.filter(t=>t.Atleta===atlFilter):TESTS;
+
+  // Chart title
+  const title=document.getElementById('tst-chart-title');
+  if(title)title.textContent=(atlFilter||'Equipo')+' — '+metInfo.label;
+
+  // Chart
+  if(tstChart){tstChart.destroy();tstChart=null;}
+  const ctx=document.getElementById('tst-chart');
+  if(ctx&&filtered.length>0){
+    // Group by athlete if showing all
+    if(!atlFilter){
+      const athletes=[...new Set(filtered.map(t=>t.Atleta))];
+      const colors=['#c8f050','#50c8f0','#f0a050','#d060f0','#50f090','#f08080','#80c8f0'];
+      const datasets=athletes.map((atl,i)=>{
+        const atlTests=filtered.filter(t=>t.Atleta===atl).sort((a,b)=>new Date(a.Fecha)-new Date(b.Fecha));
+        return{
+          label:atl,
+          data:atlTests.map(t=>({x:t.Fecha,y:parseFloat(t[metKey])||null})),
+          borderColor:colors[i%colors.length],
+          backgroundColor:colors[i%colors.length]+'22',
+          tension:.3,pointRadius:4,fill:false
+        };
+      });
+      tstChart=new Chart(ctx,{type:'line',data:{datasets},options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#9ca3af',font:{size:10,family:'DM Mono'},boxWidth:10}}},
+        scales:{x:{type:'category',ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},
+        y:{ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'},title:{display:true,text:metInfo.unit,color:'#6b7280',font:{size:9}}}}}});
+    } else {
+      const sorted=[...filtered].sort((a,b)=>new Date(a.Fecha)-new Date(b.Fecha));
+      tstChart=new Chart(ctx,{type:'line',data:{
+        labels:sorted.map(t=>t.Fecha),
+        datasets:[{label:metInfo.label,data:sorted.map(t=>parseFloat(t[metKey])||null),
+          borderColor:metInfo.color,backgroundColor:metInfo.color+'22',
+          tension:.3,pointRadius:5,fill:true}]},
+        options:{responsive:true,maintainAspectRatio:false,
+          plugins:{legend:{display:false}},
+          scales:{x:{ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},
+          y:{ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'},
+          title:{display:true,text:metInfo.unit,color:'#6b7280',font:{size:9}}}}}});
+    }
+  }
+
+  // Table
+  const tbl=document.getElementById('tst-table');
+  if(!tbl)return;
+  if(filtered.length===0){tbl.innerHTML='<div style="color:var(--mu);padding:16px;font-size:12px">No hay tests registrados</div>';return;}
+  const sorted=[...filtered].sort((a,b)=>new Date(b.Fecha)-new Date(a.Fecha));
+  tbl.innerHTML=`<table style="width:100%;border-collapse:collapse;font-family:var(--fm);font-size:11px;min-width:700px">
+    <thead><tr style="border-bottom:2px solid var(--bd)">
+      <th style="text-align:left;padding:6px 8px;color:var(--mu);font-size:10px">FECHA</th>
+      <th style="text-align:left;padding:6px 8px;color:var(--mu);font-size:10px">ATLETA</th>
+      <th style="padding:6px 4px;color:#c8f050;font-size:10px">CMJ</th>
+      <th style="padding:6px 4px;color:#f0a050;font-size:10px">ISO SQ</th>
+      <th style="padding:6px 4px;color:#d060f0;font-size:10px">DSI</th>
+      <th style="padding:6px 4px;color:#50f090;font-size:10px">SQJ</th>
+      <th style="padding:6px 4px;color:#f08080;font-size:10px">HOP RSI</th>
+      <th style="padding:6px 4px;color:#80c8f0;font-size:10px">SL Asim</th>
+      <th style="padding:6px 4px;color:#c8f050;font-size:10px">React.</th>
+      <th style="padding:6px 8px;color:var(--mu);font-size:10px"></th>
+    </tr></thead>
+    <tbody>${sorted.map(t=>`
+      <tr style="border-bottom:1px solid var(--bd)">
+        <td style="padding:7px 8px;color:var(--mu)">${t.Fecha||''}</td>
+        <td style="padding:7px 8px;font-weight:500">${t.Atleta||''}</td>
+        <td style="padding:7px 4px;text-align:center;color:#c8f050">${t.CMJ_salto||'—'}</td>
+        <td style="padding:7px 4px;text-align:center;color:#f0a050">${t.ISO_SQ||'—'}</td>
+        <td style="padding:7px 4px;text-align:center;color:#d060f0">${t.DSI||'—'}</td>
+        <td style="padding:7px 4px;text-align:center;color:#50f090">${t.SQJ||'—'}</td>
+        <td style="padding:7px 4px;text-align:center;color:#f08080">${t.HOP_RSI||'—'}</td>
+        <td style="padding:7px 4px;text-align:center;color:${parseFloat(t.SL_asim)>0.15?'#f08080':'#50f090'}">${t.SL_asim?Math.round(parseFloat(t.SL_asim)*100)+'%':'—'}</td>
+        <td style="padding:7px 4px;text-align:center;color:#c8f050">${t.Reactividad||'—'}</td>
+        <td style="padding:7px 8px"><button onclick="deleteTestRow('${t.Fecha}','${t.Atleta}')" style="background:none;border:none;color:var(--dg);cursor:pointer;font-size:12px">✕</button></td>
+      </tr>
+      ${t.Conclusiones?`<tr><td colspan="10" style="padding:4px 8px 8px;font-size:10px;color:var(--mu);font-style:italic">${t.Conclusiones}</td></tr>`:''}`).join('')}
+    </tbody></table>`;
+}
+
+function openTestForm(){
+  // Set today's date
+  document.getElementById('tf-fecha').value=new Date().toISOString().slice(0,10);
+  // Populate athletes
+  const atlSel=document.getElementById('tf-atleta');
+  const athletes=TST_ATHLETES[STORE_KEY]||[];
+  atlSel.innerHTML='<option value="">— seleccionar —</option>'+
+    athletes.map(a=>`<option value="${a}">${a}</option>`).join('');
+  // Clear fields
+  ['CMJ_salto','CMJ_fuerza','ISO_SQ','DSI','SQJ','HOP_RSI','HOP_CM','SL_izq','SL_der','Reactividad'].forEach(f=>{
+    const el=document.getElementById('tf-'+f);
+    if(el)el.value='';
+  });
+  document.getElementById('tf-Conclusiones').value='';
+  document.getElementById('tst-overlay').style.display='flex';
+}
+
+function closeTestForm(){
+  document.getElementById('tst-overlay').style.display='none';
+}
+
+async function saveTestData(){
+  const fecha=document.getElementById('tf-fecha').value;
+  const atleta=document.getElementById('tf-atleta').value;
+  if(!fecha||!atleta){toast('⚠ Fecha y atleta son obligatorios');return;}
+  
+  const cmjF=parseFloat(document.getElementById('tf-CMJ_fuerza').value)||null;
+  const isoSQ=parseFloat(document.getElementById('tf-ISO_SQ').value)||null;
+  const dsi=cmjF&&isoSQ?Math.round(cmjF/isoSQ*100)/100:parseFloat(document.getElementById('tf-DSI').value)||null;
+  const slIzq=parseFloat(document.getElementById('tf-SL_izq').value)||null;
+  const slDer=parseFloat(document.getElementById('tf-SL_der').value)||null;
+  const slAsim=slIzq&&slDer?Math.round(Math.abs(slIzq-slDer)/Math.max(slIzq,slDer)*1000)/1000:null;
+
+  const test={
+    Fecha:fecha, Atleta:atleta,
+    CMJ_salto:parseFloat(document.getElementById('tf-CMJ_salto').value)||'',
+    CMJ_fuerza:cmjF||'', ISO_SQ:isoSQ||'', DSI:dsi||'',
+    SQJ:parseFloat(document.getElementById('tf-SQJ').value)||'',
+    HOP_RSI:parseFloat(document.getElementById('tf-HOP_RSI').value)||'',
+    HOP_CM:parseFloat(document.getElementById('tf-HOP_CM').value)||'',
+    SL_izq:slIzq||'', SL_der:slDer||'', SL_asim:slAsim||'',
+    Reactividad:parseFloat(document.getElementById('tf-Reactividad').value)||'',
+    Conclusiones:document.getElementById('tf-Conclusiones').value.trim()
+  };
+
+  try{
+    const data=encodeURIComponent(JSON.stringify(test));
+    const r=await jsonp(SCRIPT_URL+'?action=saveTest&team='+STORE_KEY+'&data='+data);
+    if(r.ok){
+      TESTS.push(test);
+      renderTests();
+      closeTestForm();
+      toast('✓ Test guardado');
+    } else {
+      toast('⚠ Error: '+(r.error||'desconocido'));
+    }
+  }catch(e){
+    toast('⚠ Sin conexión al Sheet');
+  }
+}
+
+async function deleteTestRow(fecha,atleta){
+  if(!confirm('¿Eliminar este test?'))return;
+  try{
+    const r=await jsonp(SCRIPT_URL+'?action=deleteTest&team='+STORE_KEY+'&fecha='+encodeURIComponent(fecha)+'&atleta='+encodeURIComponent(atleta));
+    if(r.ok){
+      TESTS=TESTS.filter(t=>!(t.Fecha===fecha&&t.Atleta===atleta));
+      renderTests();
+      toast('✓ Test eliminado');
+    }
+  }catch(e){
+    toast('⚠ Sin conexión al Sheet');
+  }
+}
+
+function populateTstFilters(){
+  const atls=TST_ATHLETES[STORE_KEY]||[];
+  const sel=document.getElementById('tst-filter-atl');
+  if(sel){sel.innerHTML='<option value="">Todos</option>'+atls.map(a=>`<option value="${a}">${a}</option>`).join('');}
+}
+
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});
 }
