@@ -1659,64 +1659,56 @@ async function loadTests(){
   }
 }
 
+let tstSelectedAtl = null;
+
 function renderTests(){
-  const atlFilter=document.getElementById('tst-filter-atl')?.value||'';
   const metKey=document.getElementById('tst-filter-met')?.value||'CMJ_salto';
   const metInfo=TST_FIELDS.find(f=>f.key===metKey)||TST_FIELDS[0];
 
-  // Filter
-  const filtered=atlFilter?TESTS.filter(t=>t.Atleta===atlFilter):TESTS;
+  if(tstSelectedAtl){
+    renderAthleteDetail(tstSelectedAtl, metKey, metInfo);
+  } else {
+    renderTeamSummary(metKey, metInfo);
+  }
+}
 
-  // Chart title
+function renderTeamSummary(metKey, metInfo){
+  // Get last test per athlete
+  const byAthl={};
+  TESTS.forEach(t=>{
+    if(!byAthl[t.Atleta]||new Date(t.Fecha)>new Date(byAthl[t.Atleta].Fecha)){
+      byAthl[t.Atleta]=t;
+    }
+  });
+  const latest=Object.values(byAthl);
+
+  // Chart - compare all athletes on selected metric
   const title=document.getElementById('tst-chart-title');
-  if(title)title.textContent=(atlFilter||'Equipo')+' — '+metInfo.label;
-
-  // Chart
+  if(title)title.textContent='Equipo — '+metInfo.label+' (último test)';
   if(tstChart){tstChart.destroy();tstChart=null;}
   const ctx=document.getElementById('tst-chart');
-  if(ctx&&filtered.length>0){
-    // Group by athlete if showing all
-    if(!atlFilter){
-      const athletes=[...new Set(filtered.map(t=>t.Atleta))];
-      const colors=['#c8f050','#50c8f0','#f0a050','#d060f0','#50f090','#f08080','#80c8f0'];
-      const datasets=athletes.map((atl,i)=>{
-        const atlTests=filtered.filter(t=>t.Atleta===atl).sort((a,b)=>new Date(a.Fecha)-new Date(b.Fecha));
-        return{
-          label:atl,
-          data:atlTests.map(t=>({x:t.Fecha,y:parseFloat(t[metKey])||null})),
-          borderColor:colors[i%colors.length],
-          backgroundColor:colors[i%colors.length]+'22',
-          tension:.3,pointRadius:4,fill:false
-        };
-      });
-      tstChart=new Chart(ctx,{type:'line',data:{datasets},options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{labels:{color:'#9ca3af',font:{size:10,family:'DM Mono'},boxWidth:10}}},
-        scales:{x:{type:'category',ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},
-        y:{ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'},title:{display:true,text:metInfo.unit,color:'#6b7280',font:{size:9}}}}}});
-    } else {
-      const sorted=[...filtered].sort((a,b)=>new Date(a.Fecha)-new Date(b.Fecha));
-      tstChart=new Chart(ctx,{type:'line',data:{
-        labels:sorted.map(t=>t.Fecha),
-        datasets:[{label:metInfo.label,data:sorted.map(t=>parseFloat(t[metKey])||null),
-          borderColor:metInfo.color,backgroundColor:metInfo.color+'22',
-          tension:.3,pointRadius:5,fill:true}]},
-        options:{responsive:true,maintainAspectRatio:false,
-          plugins:{legend:{display:false}},
-          scales:{x:{ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},
-          y:{ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'},
-          title:{display:true,text:metInfo.unit,color:'#6b7280',font:{size:9}}}}}});
-    }
+  if(ctx&&latest.length>0){
+    const colors=['#c8f050','#50c8f0','#f0a050','#d060f0','#50f090','#f08080','#80c8f0','#f0c050','#c850f0'];
+    const vals=latest.map(t=>parseFloat(t[metKey])||0);
+    tstChart=new Chart(ctx,{type:'bar',data:{
+      labels:latest.map(t=>t.Atleta.split(' ')[0]),
+      datasets:[{data:vals,backgroundColor:colors.map((c,i)=>c+'99'),borderColor:colors,borderWidth:1.5,borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:'#6b7280',font:{size:9}},grid:{display:false}},
+        y:{ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'},
+        title:{display:true,text:metInfo.unit,color:'#6b7280',font:{size:9}}}}}});
   }
 
-  // Table
+  // Table - one row per athlete, last test, clickable
   const tbl=document.getElementById('tst-table');
   if(!tbl)return;
-  if(filtered.length===0){tbl.innerHTML='<div style="color:var(--mu);padding:16px;font-size:12px">No hay tests registrados</div>';return;}
-  const sorted=[...filtered].sort((a,b)=>new Date(b.Fecha)-new Date(a.Fecha));
+  if(latest.length===0){tbl.innerHTML='<div style="color:var(--mu);padding:16px;font-size:12px">No hay tests registrados</div>';return;}
+  const sorted=latest.sort((a,b)=>a.Atleta.localeCompare(b.Atleta));
   tbl.innerHTML=`<table style="width:100%;border-collapse:collapse;font-family:var(--fm);font-size:11px;min-width:700px">
     <thead><tr style="border-bottom:2px solid var(--bd)">
-      <th style="text-align:left;padding:6px 8px;color:var(--mu);font-size:10px">FECHA</th>
       <th style="text-align:left;padding:6px 8px;color:var(--mu);font-size:10px">ATLETA</th>
+      <th style="padding:6px 4px;color:var(--mu);font-size:10px">ÚLTIMO TEST</th>
       <th style="padding:6px 4px;color:#c8f050;font-size:10px">CMJ</th>
       <th style="padding:6px 4px;color:#f0a050;font-size:10px">ISO SQ</th>
       <th style="padding:6px 4px;color:#d060f0;font-size:10px">DSI</th>
@@ -1724,23 +1716,99 @@ function renderTests(){
       <th style="padding:6px 4px;color:#f08080;font-size:10px">HOP RSI</th>
       <th style="padding:6px 4px;color:#80c8f0;font-size:10px">SL Asim</th>
       <th style="padding:6px 4px;color:#c8f050;font-size:10px">React.</th>
-      <th style="padding:6px 8px;color:var(--mu);font-size:10px"></th>
+    </tr></thead>
+    <tbody>${sorted.map(t=>`
+      <tr onclick="selectAthleteTests('${t.Atleta}')" style="border-bottom:1px solid var(--bd);cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background=''">
+        <td style="padding:8px 8px;font-weight:600;color:var(--ac)">${t.Atleta}</td>
+        <td style="padding:8px 4px;text-align:center;color:var(--mu);font-size:10px">${t.Fecha?t.Fecha.slice(0,10).split('-').reverse().join('/'):'—'}</td>
+        <td style="padding:8px 4px;text-align:center;color:#c8f050">${t.CMJ_salto||'—'}</td>
+        <td style="padding:8px 4px;text-align:center;color:#f0a050">${t.ISO_SQ||'—'}</td>
+        <td style="padding:8px 4px;text-align:center;color:#d060f0">${t.DSI||'—'}</td>
+        <td style="padding:8px 4px;text-align:center;color:#50f090">${t.SQJ||'—'}</td>
+        <td style="padding:8px 4px;text-align:center;color:#f08080">${t.HOP_RSI||'—'}</td>
+        <td style="padding:8px 4px;text-align:center;color:${parseFloat(t.SL_asim)>0.15?'#f08080':'#50f090'}">${t.SL_asim?Math.round(parseFloat(t.SL_asim)*100)+'%':'—'}</td>
+        <td style="padding:8px 4px;text-align:center;color:#c8f050">${t.Reactividad||'—'}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function selectAthleteTests(atleta){
+  tstSelectedAtl=atleta;
+  // Update athlete filter select
+  const sel=document.getElementById('tst-filter-atl');
+  if(sel)sel.value=atleta;
+  renderTests();
+}
+
+function renderAthleteDetail(atleta, metKey, metInfo){
+  const atlTests=TESTS.filter(t=>t.Atleta===atleta).sort((a,b)=>new Date(a.Fecha)-new Date(b.Fecha));
+  
+  // Chart title with back button
+  const title=document.getElementById('tst-chart-title');
+  if(title)title.innerHTML=`<span onclick="backToTeam()" style="cursor:pointer;color:var(--mu);font-size:11px;margin-right:8px">← Equipo</span>${atleta} — ${metInfo.label}`;
+
+  // Line chart for athlete evolution
+  if(tstChart){tstChart.destroy();tstChart=null;}
+  const ctx=document.getElementById('tst-chart');
+  if(ctx&&atlTests.length>0){
+    tstChart=new Chart(ctx,{type:'line',data:{
+      labels:atlTests.map(t=>t.Fecha?t.Fecha.slice(0,10).split('-').reverse().join('/'):t.Fecha),
+      datasets:[{label:metInfo.label,data:atlTests.map(t=>parseFloat(t[metKey])||null),
+        borderColor:metInfo.color,backgroundColor:metInfo.color+'22',
+        tension:.3,pointRadius:5,fill:true}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},
+        y:{ticks:{color:'#6b7280',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'},
+        title:{display:true,text:metInfo.unit,color:'#6b7280',font:{size:9}}}}}});
+  }
+
+  // Table with all tests for this athlete
+  const tbl=document.getElementById('tst-table');
+  if(!tbl)return;
+  const sorted=[...atlTests].reverse();
+  tbl.innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <button onclick="backToTeam()" style="font-family:var(--fm);font-size:11px;padding:5px 12px;border-radius:4px;background:var(--bg3);border:1px solid var(--bd);color:var(--mu);cursor:pointer">← Volver al equipo</button>
+      <span style="font-family:var(--fm);font-size:11px;color:var(--mu)">${atlTests.length} test${atlTests.length!==1?'s':''} registrado${atlTests.length!==1?'s':''}</span>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-family:var(--fm);font-size:11px;min-width:700px">
+    <thead><tr style="border-bottom:2px solid var(--bd)">
+      <th style="text-align:left;padding:6px 8px;color:var(--mu);font-size:10px">FECHA</th>
+      <th style="padding:6px 4px;color:#c8f050;font-size:10px">CMJ</th>
+      <th style="padding:6px 4px;color:#f0a050;font-size:10px">ISO SQ</th>
+      <th style="padding:6px 4px;color:#d060f0;font-size:10px">DSI</th>
+      <th style="padding:6px 4px;color:#50f090;font-size:10px">SQJ</th>
+      <th style="padding:6px 4px;color:#f08080;font-size:10px">HOP RSI</th>
+      <th style="padding:6px 4px;color:#80c8f0;font-size:10px">SL Izq</th>
+      <th style="padding:6px 4px;color:#80f0c8;font-size:10px">SL Der</th>
+      <th style="padding:6px 4px;color:#f06060;font-size:10px">Asim</th>
+      <th style="padding:6px 4px;color:#c8f050;font-size:10px">React.</th>
+      <th style="padding:6px 8px"></th>
     </tr></thead>
     <tbody>${sorted.map(t=>`
       <tr style="border-bottom:1px solid var(--bd)">
-        <td style="padding:7px 8px;color:var(--mu)">${t.Fecha||''}</td>
-        <td style="padding:7px 8px;font-weight:500">${t.Atleta||''}</td>
+        <td style="padding:7px 8px;color:var(--mu)">${t.Fecha?t.Fecha.slice(0,10).split('-').reverse().join('/'):'—'}</td>
         <td style="padding:7px 4px;text-align:center;color:#c8f050">${t.CMJ_salto||'—'}</td>
         <td style="padding:7px 4px;text-align:center;color:#f0a050">${t.ISO_SQ||'—'}</td>
         <td style="padding:7px 4px;text-align:center;color:#d060f0">${t.DSI||'—'}</td>
         <td style="padding:7px 4px;text-align:center;color:#50f090">${t.SQJ||'—'}</td>
         <td style="padding:7px 4px;text-align:center;color:#f08080">${t.HOP_RSI||'—'}</td>
+        <td style="padding:7px 4px;text-align:center;color:#80c8f0">${t.SL_izq||'—'}</td>
+        <td style="padding:7px 4px;text-align:center;color:#80f0c8">${t.SL_der||'—'}</td>
         <td style="padding:7px 4px;text-align:center;color:${parseFloat(t.SL_asim)>0.15?'#f08080':'#50f090'}">${t.SL_asim?Math.round(parseFloat(t.SL_asim)*100)+'%':'—'}</td>
         <td style="padding:7px 4px;text-align:center;color:#c8f050">${t.Reactividad||'—'}</td>
         <td style="padding:7px 8px"><button onclick="deleteTestRow('${t.Fecha}','${t.Atleta}')" style="background:none;border:none;color:var(--dg);cursor:pointer;font-size:12px">✕</button></td>
       </tr>
-      ${t.Conclusiones?`<tr><td colspan="10" style="padding:4px 8px 8px;font-size:10px;color:var(--mu);font-style:italic">${t.Conclusiones}</td></tr>`:''}`).join('')}
+      ${t.Conclusiones?`<tr><td colspan="11" style="padding:4px 8px 8px;font-size:10px;color:var(--mu);font-style:italic">💬 ${t.Conclusiones}</td></tr>`:''}`).join('')}
     </tbody></table>`;
+}
+
+function backToTeam(){
+  tstSelectedAtl=null;
+  const sel=document.getElementById('tst-filter-atl');
+  if(sel)sel.value='';
+  renderTests();
 }
 
 function openTestForm(){
