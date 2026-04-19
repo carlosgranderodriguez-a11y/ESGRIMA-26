@@ -1300,28 +1300,43 @@ function openDayPanel(el){
   const d=(S.days&&S.days[dayKey])||{};
   const wd=S.weeks.find(w=>w.num===weekNum&&w.mes===mes)||S.weeks.find(w=>w.num===weekNum)||{};
   document.getElementById('dp-title').textContent=`${dayNum} ${mes}`;
+  // Show comps for this day, this week, or all month (for editing)
   const weekComps=S.comps.filter(c=>c.mes===mes&&c.dia&&dayNum>=c.dia&&dayNum<=(c.dia_fin||c.dia));
   const semComps=S.comps.filter(c=>c.sem===weekNum&&!c.dia);
   const allDayComps=[...weekComps,...semComps];
+  const allMonthComps=S.comps.filter(c=>c.mes===mes&&!allDayComps.find(x=>x.id===c.id));
   let sub=`Semana ${weekNum}`;
   if(allDayComps.length) sub+=` · ${allDayComps.map(c=>(c.tipo==='Concentración'?'◉ ':' ◆ ')+c.name).join('  ')}`;
   document.getElementById('dp-sub').textContent=sub;
   // Competition section
   const dpComps=document.getElementById('dp-comps');
   if(dpComps){
+    let html='';
     if(allDayComps.length){
-      dpComps.innerHTML=allDayComps.map(c=>`
-        <div style="background:var(--bg3);border-radius:6px;padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+      html+=allDayComps.map(c=>`
+        <div style="background:var(--bg3);border-radius:6px;padding:8px 10px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between">
           <div>
-            <span class="b ${TB(c.tipo)}" style="font-size:9px;margin-right:6px">${c.tipo}</span>
+            <span style="font-size:9px;color:var(--mu);margin-right:6px">${c.tipo}</span>
             <span style="font-size:12px;font-weight:600">${c.name}</span>
             ${c.lugar?`<span style="font-family:var(--fm);font-size:10px;color:var(--mu);margin-left:6px">📍 ${c.lugar}</span>`:''}
           </div>
           <button onclick="openCFfromDay(${c.id})" style="font-size:10px;font-family:var(--fm);padding:3px 8px;border-radius:4px;background:none;border:1px solid var(--bd);color:var(--bl);cursor:pointer">✎ Editar</button>
         </div>`).join('');
-    } else {
-      dpComps.innerHTML=`<button onclick="addCompFromDay('${mes}',${weekNum})" style="width:100%;font-family:var(--fm);font-size:11px;padding:7px;border-radius:6px;background:rgba(200,240,80,.05);border:1px dashed rgba(200,240,80,.3);color:var(--mu);cursor:pointer;margin-bottom:10px">+ Añadir competición en esta semana</button>`;
     }
+    if(allMonthComps.length){
+      html+=`<details style="margin-top:4px"><summary style="font-family:var(--fm);font-size:10px;color:var(--mu);cursor:pointer;margin-bottom:4px">Otras competiciones del mes (${allMonthComps.length})</summary>`;
+      html+=allMonthComps.map(c=>`
+        <div style="background:var(--bg3);border-radius:6px;padding:6px 10px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;opacity:.8">
+          <div>
+            <span style="font-size:9px;color:var(--mu);margin-right:6px">${c.tipo}</span>
+            <span style="font-size:11px">${c.name}</span>
+          </div>
+          <button onclick="openCFfromDay(${c.id})" style="font-size:10px;font-family:var(--fm);padding:3px 8px;border-radius:4px;background:none;border:1px solid var(--bd);color:var(--bl);cursor:pointer">✎ Editar</button>
+        </div>`).join('');
+      html+=`</details>`;
+    }
+    html+=`<button onclick="addCompFromDay('${mes}',${weekNum})" style="width:100%;font-family:var(--fm);font-size:11px;padding:6px;border-radius:6px;background:rgba(200,240,80,.05);border:1px dashed rgba(200,240,80,.3);color:var(--mu);cursor:pointer;margin-top:4px">+ Añadir competición</button>`;
+    dpComps.innerHTML=html;
   }
   document.getElementById('dp-fase').value=d.fase||wd.fase||'';
   document.getElementById('dp-rpe').value=d.rpe||wd.rpe||'';
