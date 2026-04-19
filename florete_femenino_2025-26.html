@@ -1397,7 +1397,13 @@ function T(id){
   if(id==='cal')bCal();
   if(id==='tmp'){bTL();bTCtbl();}
   if(id==='ale')bAle();
-  if(id==='tst'){if(!built['tst']){built['tst']=true;loadTests();populateTstFilters();}}
+  if(id==='tst'){
+    if(!built['tst']){built['tst']=true;populateTstFilters();}
+    const tbl=document.getElementById('tst-table');
+    if(tbl)tbl.innerHTML='<div style="color:var(--mu);padding:16px;font-size:12px">Cargando tests...</div>';
+    TESTS=[];
+    loadTests();
+  }
   if(id==='adm'){rAC();rAW();}
 }
 
@@ -1650,8 +1656,12 @@ const TST_ATHLETES = {"esgrima26masc": ["Gerard Gonell", "Diego Rodriguez", "Ray
 async function loadTests(){
   try{
     const j=await jsonp(SCRIPT_URL+'?action=loadTests&team='+STORE_KEY);
-    if(j.tests){
+    if(j.tests&&j.tests.length>0){
       TESTS=j.tests;
+      tstSelectedAtl=null;
+      renderTests();
+    } else if(j.tests&&j.tests.length===0){
+      TESTS=[];
       renderTests();
     }
   }catch(e){
