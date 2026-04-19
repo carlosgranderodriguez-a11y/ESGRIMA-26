@@ -61,9 +61,9 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
 /* CALENDAR */
 .chr{display:grid;grid-template-columns:50px repeat(7,minmax(0,1fr)) 90px;gap:3px;margin-bottom:4px}
 .cdh{font-family:var(--fm);font-size:10px;color:var(--mu);text-align:center;padding:3px 0;letter-spacing:.06em}
-.wr{display:grid;grid-template-columns:50px repeat(7,minmax(0,1fr)) 90px;gap:3px;margin-bottom:3px}
+.wr{display:grid;grid-template-columns:50px repeat(7,minmax(0,1fr)) 90px;gap:3px;margin-bottom:3px;align-items:start}
 .wl{font-family:var(--fm);font-size:9px;color:var(--mu);display:flex;align-items:center;justify-content:center}
-.cd{border-radius:4px;padding:8px 6px;min-height:180px;border:1px solid transparent;transition:opacity .15s}.cd:hover{opacity:.85}
+.cd{border-radius:4px;padding:8px 6px;min-height:180px;height:auto;border:1px solid transparent;transition:opacity .15s;overflow:visible;word-break:break-word}.cd:hover{opacity:.85}
 .cd.emp{background:rgba(255,255,255,.02)}
 .cd.phA{background:rgba(80,240,144,.07);border-color:rgba(80,240,144,.14)}
 .cd.phAp{background:rgba(80,240,144,.11);border-color:rgba(80,240,144,.22)}
