@@ -1356,7 +1356,7 @@ function saveDayData(){
   } else {
     delete S.days[currentDayKey];
   }
-  saveS();
+  localStorage.setItem(STORE_KEY, JSON.stringify(S));
   closeDayPanel();
   bCal();
   toast('✓ Día guardado');
