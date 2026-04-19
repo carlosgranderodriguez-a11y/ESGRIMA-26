@@ -1230,7 +1230,7 @@ function saveComp(){
   if(!name){alert('El nombre es obligatorio');return;}
   const obj={id:eCId||S.nid++,name,lugar:document.getElementById('cf-lugar').value.trim(),mes:document.getElementById('cf-mes').value,sem:parseInt(document.getElementById('cf-sem').value)||0,dia:parseInt(document.getElementById('cf-dia').value)||null,dia_fin:parseInt(document.getElementById('cf-dia-fin').value)||null,mes_fin:document.getElementById('cf-mes-fin').value||null,tipo:document.getElementById('cf-tipo').value,imp:document.getElementById('cf-imp').value,cat:document.getElementById('cf-cat').value,notas:document.getElementById('cf-notas').value.trim()};
   if(eCId){S.comps=S.comps.map(c=>c.id===eCId?obj:c);}else{S.comps.push(obj);}
-  saveS();closeCF();rAC();
+  localStorage.setItem(STORE_KEY,JSON.stringify(S));closeCF();rAC();
   built['cal']=false;built['tmp']=false;
   if(document.getElementById('pnl-cal').classList.contains('on')){built['cal']=true;bCal();}
   if(document.getElementById('pnl-tmp').classList.contains('on')){built['tmp']=true;bTL();bTCtbl();}
@@ -1239,7 +1239,7 @@ function saveComp(){
 }
 function dC(id){
   const c=S.comps.find(x=>x.id===id);if(!confirm(`¿Eliminar "${c?.name}"?`))return;
-  S.comps=S.comps.filter(c=>c.id!==id);saveS();rAC();
+  S.comps=S.comps.filter(c=>c.id!==id);localStorage.setItem(STORE_KEY,JSON.stringify(S));rAC();
   built['cal']=false;built['tmp']=false;
   if(document.getElementById('pnl-cal').classList.contains('on')){built['cal']=true;bCal();}
   if(document.getElementById('pnl-tmp').classList.contains('on')){built['tmp']=true;bTL();bTCtbl();}
@@ -1271,7 +1271,7 @@ function saveWeek(){
   const num=parseInt(document.getElementById('wf-num').value);if(!num){alert('Número de semana obligatorio');return;}
   const obj={id:eWId||S.nid++,num,mes:document.getElementById('wf-mes').value,fase:document.getElementById('wf-fase').value,rpe:parseFloat(document.getElementById('wf-rpe').value)||null,notas:document.getElementById('wf-notas').value.trim()};
   if(eWId){S.weeks=S.weeks.map(w=>w.id===eWId?obj:w);}else{S.weeks.push(obj);}
-  S.weeks.sort((a,b)=>a.num-b.num);saveS();closeWF();rAW();
+  S.weeks.sort((a,b)=>a.num-b.num);localStorage.setItem(STORE_KEY,JSON.stringify(S));closeWF();rAW();
   built['cal']=false;built['tmp']=false;
   if(document.getElementById('pnl-cal').classList.contains('on')){built['cal']=true;bCal();}
   if(document.getElementById('pnl-tmp').classList.contains('on')){built['tmp']=true;bTL();}
@@ -1279,7 +1279,7 @@ function saveWeek(){
 }
 function dW(id){
   const w=S.weeks.find(x=>x.id===id);if(!confirm(`¿Eliminar Semana ${w?.num}?`))return;
-  S.weeks=S.weeks.filter(w=>w.id!==id);saveS();rAW();
+  S.weeks=S.weeks.filter(w=>w.id!==id);localStorage.setItem(STORE_KEY,JSON.stringify(S));rAW();
   built['cal']=false;built['tmp']=false;
   if(document.getElementById('pnl-cal').classList.contains('on')){built['cal']=true;bCal();}
   if(document.getElementById('pnl-tmp').classList.contains('on')){built['tmp']=true;bTL();}
@@ -1398,7 +1398,7 @@ function saveDayData(){
 function clearDayData(){
   if(!currentDayKey)return;
   if(S.days)delete S.days[currentDayKey];
-  saveS();bCal();
+  localStorage.setItem(STORE_KEY,JSON.stringify(S));bCal();
   document.getElementById('day-overlay').style.display='none';
   toast('✓ Día limpiado');
 }
