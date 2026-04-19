@@ -59,9 +59,9 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
 .msv{font-family:var(--fh);font-size:17px;font-weight:700;margin-top:2px}
 .itag{display:inline-block;background:rgba(240,80,80,.1);border:1px solid rgba(240,80,80,.25);color:#f09090;font-size:10px;padding:2px 6px;border-radius:3px;margin:2px;font-family:var(--fm)}
 /* CALENDAR */
-.chr{display:grid;grid-template-columns:50px repeat(7,minmax(0,1fr));gap:3px;margin-bottom:4px}
+.chr{display:grid;grid-template-columns:50px repeat(7,minmax(0,1fr)) 90px;gap:3px;margin-bottom:4px}
 .cdh{font-family:var(--fm);font-size:10px;color:var(--mu);text-align:center;padding:3px 0;letter-spacing:.06em}
-.wr{display:grid;grid-template-columns:50px repeat(7,minmax(0,1fr));gap:3px;margin-bottom:3px}
+.wr{display:grid;grid-template-columns:50px repeat(7,minmax(0,1fr)) 90px;gap:3px;margin-bottom:3px}
 .wl{font-family:var(--fm);font-size:9px;color:var(--mu);display:flex;align-items:center;justify-content:center}
 .cd{border-radius:4px;padding:8px 6px;min-height:150px;border:1px solid transparent;transition:opacity .15s}.cd:hover{opacity:.85}
 .cd.emp{background:rgba(255,255,255,.02)}
@@ -1010,7 +1010,7 @@ function bCal(){
   let h='';
   CAL.forEach(m=>{
     h+=`<div id="cal-mes-${m.mes.replace(' ','-')}" style="margin-bottom:20px"><div style="font-family:var(--fh);font-size:16px;font-weight:700;margin:14px 0 8px">${m.mes}</div>
-    <div class="chr"><div></div>${dias.map(d=>`<div class="cdh">${d}</div>`).join('')}</div>`;
+    <div class="chr"><div></div>${dias.map(d=>`<div class="cdh">${d}</div>`).join('')}</div>` + `<div></div>`;
     m.wks.forEach(wl=>{
       const wd=S.weeks.find(w=>w.num===wl.n&&w.mes===m.mes)||S.weeks.find(w=>w.num===wl.n)||{fase:'',rpe:null};
       // Match by sem, OR by mes + dia range overlapping this week
@@ -1074,6 +1074,24 @@ function bCal(){
       }
       const used=off+(wl.e-wl.s+1);
       for(let i=used;i<7;i++)h+=`<div class="cd emp"></div>`;
+      // Weekly load summary cell
+      const wkDays=[];
+      for(let d=wl.s;d<=wl.e;d++){
+        const dk=m.mes.replace(' ','-')+'-'+d;
+        const dd=(S.days&&S.days[dk])||{};
+        wkDays.push(dd);
+      }
+      const rpesFis=wkDays.map(d=>d.rpe).filter(v=>v!=null&&v!==undefined&&v!=='');
+      const rpesEsg=wkDays.map(d=>d.rpe_esg).filter(v=>v!=null&&v!==undefined&&v!=='');
+      const avgFis=rpesFis.length?Math.round(rpesFis.reduce((a,b)=>a+parseFloat(b),0)/rpesFis.length*10)/10:null;
+      const avgEsg=rpesEsg.length?Math.round(rpesEsg.reduce((a,b)=>a+parseFloat(b),0)/rpesEsg.length*10)/10:null;
+      const cargaTotal=(avgFis!=null&&avgEsg!=null)?Math.round((avgFis+avgEsg)/2*10)/10:null;
+      h+=`<div class="cd" style="min-width:90px;max-width:90px;background:rgba(255,255,255,.03);border-left:2px solid var(--bd);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 4px">
+        <div style="font-family:var(--fm);font-size:8px;color:var(--mu);letter-spacing:.05em;margin-bottom:2px">CARGA</div>
+        ${avgFis!=null?`<div style="font-size:10px;color:rgba(80,200,240,.8)">💪 ${avgFis}</div>`:'<div style="font-size:10px;color:var(--mu)">💪 —</div>'}
+        ${avgEsg!=null?`<div style="font-size:10px;color:rgba(80,240,144,.8)">🤺 ${avgEsg}</div>`:'<div style="font-size:10px;color:var(--mu)">🤺 —</div>'}
+        ${cargaTotal!=null?`<div style="font-size:11px;font-weight:700;color:var(--ac);margin-top:2px;border-top:1px solid var(--bd);padding-top:3px;width:100%;text-align:center">⚡ ${cargaTotal}</div>`:''}
+      </div>`;
       h+=`</div>`;
     });
     h+=`</div>`;
