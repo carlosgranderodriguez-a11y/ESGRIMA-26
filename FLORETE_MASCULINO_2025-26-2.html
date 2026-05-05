@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Espada Femenina 2025·2026</title>
+<title>Florete Masculino 2025·2026</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0d0f14">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -139,7 +139,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
 </head>
 <body>
 <nav>
-  <div class="nbrand">ESPADA FEM</div>
+  <div class="nbrand">FLORETE MASC</div>
   <div class="ntabs">
     <a href="index.html" style="padding:0 14px;font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;font-family:var(--fm);display:flex;align-items:center;height:52px;text-decoration:none;border-right:1px solid var(--bd)" onmouseover="this.style.color='var(--tx)'" onmouseout="this.style.color='var(--mu)'">← Equipos</a>
     <div class="ntab on" onclick="T('res')">Resumen</div>
@@ -157,7 +157,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
 <!-- RESUMEN -->
 <div id="pnl-res" class="pnl on">
   <div class="st">Panel general</div>
-  <div class="ss">Espada Femenina · Temporada 2025/2026</div>
+  <div class="ss">Florete Masculino · Temporada 2025/2026</div>
   <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
     <span style="font-family:var(--fm);font-size:10px;color:var(--mu);letter-spacing:.08em">WELLNESS:</span>
     <button class="fbtn foff" id="f1" onclick="setDF(1,this)">Hoy</button>
@@ -196,18 +196,6 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
     </div>
     <div class="cw"><canvas id="trendC"></canvas></div>
   </div>
-
-<!-- BODY MAP - TEAM -->
-<div class="card mb" style="margin-top:14px">
-  <div class="ct">Mapa de Dolor — Equipo</div>
-  <div style="display:grid;grid-template-columns:1fr 220px;gap:16px;align-items:start">
-    <div id="team-body-map-zones" style="text-align:center"></div>
-    <div>
-      <div style="font-family:var(--fm);font-size:9px;color:var(--mu);letter-spacing:.05em;margin-bottom:6px">ZONAS REPORTADAS</div>
-      <div id="team-body-legend"></div>
-    </div>
-  </div>
-</div>
 </div>
 
 <!-- ATLETAS -->
@@ -234,18 +222,6 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
   </div>
   <div class="ag" id="atl-grid"></div>
   <div id="atl-det" style="display:none;margin-top:14px"><div class="card" id="atl-det-in"></div></div>
-
-<!-- BODY MAP - ATHLETE -->
-<div class="card mb" style="margin-top:10px">
-  <div class="ct">Zonas de Dolor</div>
-  <div style="display:grid;grid-template-columns:1fr 200px;gap:14px;align-items:start">
-    <div id="atl-body-map-zones" style="text-align:center"></div>
-    <div>
-      <div style="font-family:var(--fm);font-size:9px;color:var(--mu);letter-spacing:.05em;margin-bottom:6px">HISTORIAL</div>
-      <div id="atl-body-legend"></div>
-    </div>
-  </div>
-</div>
 </div>
 
 <!-- RPE -->
@@ -546,8 +522,8 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
 // ═══════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════
-const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQBv-dYvKkDDrXnJwY4gdGTAYj-IL34lcVsx3TL8cjspdU_hOdgi6wTLV7UDJVafIdtldOFMj34BSn6/pub?gid=1490399670&single=true&output=csv';
-const STORE_KEY='esgrima26fem';
+const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSH56ayIJKpmCtT65kNv3rMRMf8vytNtvftlOB4Nd8eTaf6Q12l9iPwKbrrCpeg3vHH1nXRSac-8TEN/pub?output=csv';
+const STORE_KEY='florete26masc';
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxOWUdgQKMBaG60N2MOZkoQLhvG70mfjBE7BPt5ugAnKXIEU-yBD75MIGwLsZ4zBU8F/exec';
 function jsonp(url){
   return new Promise((resolve,reject)=>{
@@ -853,8 +829,7 @@ function bTeam(){
     <td style='display:${hasCicloData?"":"none"}'>${a.ciclo?`<span class="b" style="background:rgba(200,80,240,.15);color:#d060f0;font-size:9px">${a.ciclo}</span>`:''}</td>
     <td>${a.ln>0?`<span class="b b-dg">lesión</span>`:`<span class="b b-ok">OK</span>`}</td>
   </tr>`).join(''):'<tr><td colspan="6" style="color:var(--mu);font-family:var(--fm);font-size:12px;padding:10px 8px">Sin datos en el periodo seleccionado</td></tr>';
-
-  try{buildTeamBodyMap();}catch(e){console.log("BodyMap:",e);}}
+}
 function bNext(){
   const now=new Date();
   // Filter comps that are in the future based on mes+dia or mes+sem
@@ -1538,8 +1513,7 @@ function openAthlDrawer(name){
   // Navigate
   T('atl-ind');
   bAiPanel(a);
-
-  try{const dat=byEmail&&byEmail[Object.keys(byEmail).find(e=>byEmail[e].name===name||(byEmail[e].rows&&true))];if(dat)buildAthleteBodyMap(dat);}catch(e){console.log("AtlBodyMap err:",e);}}
+}
 
 function bAiPanel(a){
   // Filter rows by aiFilter
@@ -1982,97 +1956,6 @@ function populateTstFilters(){
   const sel=document.getElementById('tst-filter-atl');
   if(sel){sel.innerHTML='<option value="">Todos</option>'+atls.map(a=>`<option value="${a}">${a}</option>`).join('');}
 }
-
-
-const BODY_MAP_SVG_HTML = "<svg viewBox=\"0 0 280 360\" xmlns=\"http://www.w3.org/2000/svg\" style=\"max-width:100%;height:auto\">\n  <!-- FRENTE -->\n  <text x=\"70\" y=\"14\" font-family=\"DM Mono\" font-size=\"9\" fill=\"#6b7280\" text-anchor=\"middle\">FRENTE</text>\n  <!-- Cabeza -->\n  <ellipse cx=\"70\" cy=\"38\" rx=\"14\" ry=\"17\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\"/>\n  <!-- Cuello (zona 1) -->\n  <rect data-zone=\"Cuello\" x=\"63\" y=\"53\" width=\"14\" height=\"9\" rx=\"2\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Hombros (zona 2) -->\n  <ellipse data-zone=\"Hombro\" cx=\"50\" cy=\"68\" rx=\"9\" ry=\"6\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <ellipse data-zone=\"Hombro\" cx=\"90\" cy=\"68\" rx=\"9\" ry=\"6\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Espalda alta (frente = pecho mostramos como zona) -->\n  <rect data-zone=\"Espalda alta\" x=\"55\" y=\"65\" width=\"30\" height=\"22\" rx=\"3\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Brazo armado / mu\u00f1eca -->\n  <ellipse data-zone=\"Brazo armado / mu\u00f1eca\" cx=\"40\" cy=\"95\" rx=\"6\" ry=\"22\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <ellipse data-zone=\"Brazo armado / mu\u00f1eca\" cx=\"100\" cy=\"95\" rx=\"6\" ry=\"22\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Tronco/abdomen (visual) -->\n  <rect x=\"55\" y=\"88\" width=\"30\" height=\"34\" rx=\"3\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\"/>\n  <!-- Lumbar/Pubis zona -->\n  <rect data-zone=\"Aductor / pubis\" x=\"58\" y=\"122\" width=\"24\" height=\"10\" rx=\"2\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Cu\u00e1driceps -->\n  <ellipse data-zone=\"Cu\u00e1driceps\" cx=\"60\" cy=\"155\" rx=\"9\" ry=\"22\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <ellipse data-zone=\"Cu\u00e1driceps\" cx=\"80\" cy=\"155\" rx=\"9\" ry=\"22\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Rodilla -->\n  <circle data-zone=\"Rodilla\" cx=\"60\" cy=\"182\" r=\"6\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <circle data-zone=\"Rodilla\" cx=\"80\" cy=\"182\" r=\"6\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Gemelo (frente: tibia, lo dejamos como zona representativa) -->\n  <ellipse data-zone=\"Gemelo\" cx=\"60\" cy=\"215\" rx=\"7\" ry=\"22\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <ellipse data-zone=\"Gemelo\" cx=\"80\" cy=\"215\" rx=\"7\" ry=\"22\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Tobillo -->\n  <circle data-zone=\"Tobillo\" cx=\"60\" cy=\"245\" r=\"5\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <circle data-zone=\"Tobillo\" cx=\"80\" cy=\"245\" r=\"5\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Pie / Planta del pie -->\n  <ellipse data-zone=\"Planta del pie\" cx=\"60\" cy=\"258\" rx=\"7\" ry=\"5\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <ellipse data-zone=\"Planta del pie\" cx=\"80\" cy=\"258\" rx=\"7\" ry=\"5\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n\n  <!-- ESPALDA -->\n  <text x=\"210\" y=\"14\" font-family=\"DM Mono\" font-size=\"9\" fill=\"#6b7280\" text-anchor=\"middle\">ESPALDA</text>\n  <!-- Cabeza -->\n  <ellipse cx=\"210\" cy=\"38\" rx=\"14\" ry=\"17\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\"/>\n  <!-- Cuello atr\u00e1s -->\n  <rect data-zone=\"Cuello\" x=\"203\" y=\"53\" width=\"14\" height=\"9\" rx=\"2\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Hombros atr\u00e1s -->\n  <ellipse data-zone=\"Hombro\" cx=\"190\" cy=\"68\" rx=\"9\" ry=\"6\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <ellipse data-zone=\"Hombro\" cx=\"230\" cy=\"68\" rx=\"9\" ry=\"6\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Espalda alta (atr\u00e1s) -->\n  <rect data-zone=\"Espalda alta\" x=\"195\" y=\"65\" width=\"30\" height=\"22\" rx=\"3\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Brazos atr\u00e1s -->\n  <ellipse data-zone=\"Brazo armado / mu\u00f1eca\" cx=\"180\" cy=\"95\" rx=\"6\" ry=\"22\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <ellipse data-zone=\"Brazo armado / mu\u00f1eca\" cx=\"240\" cy=\"95\" rx=\"6\" ry=\"22\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Lumbar -->\n  <rect data-zone=\"Lumbar\" x=\"195\" y=\"88\" width=\"30\" height=\"20\" rx=\"3\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Gl\u00fateo -->\n  <ellipse data-zone=\"Gl\u00fateo\" cx=\"200\" cy=\"120\" rx=\"11\" ry=\"9\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <ellipse data-zone=\"Gl\u00fateo\" cx=\"220\" cy=\"120\" rx=\"11\" ry=\"9\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Isquios -->\n  <ellipse data-zone=\"Isquios\" cx=\"200\" cy=\"155\" rx=\"9\" ry=\"22\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <ellipse data-zone=\"Isquios\" cx=\"220\" cy=\"155\" rx=\"9\" ry=\"22\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Rodilla atr\u00e1s (fosa popl\u00edtea) -->\n  <circle data-zone=\"Rodilla\" cx=\"200\" cy=\"182\" r=\"6\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <circle data-zone=\"Rodilla\" cx=\"220\" cy=\"182\" r=\"6\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Gemelo atr\u00e1s -->\n  <ellipse data-zone=\"Gemelo\" cx=\"200\" cy=\"215\" rx=\"7\" ry=\"22\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <ellipse data-zone=\"Gemelo\" cx=\"220\" cy=\"215\" rx=\"7\" ry=\"22\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Tobillo atr\u00e1s -->\n  <circle data-zone=\"Tobillo\" cx=\"200\" cy=\"245\" r=\"5\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <circle data-zone=\"Tobillo\" cx=\"220\" cy=\"245\" r=\"5\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <!-- Planta -->\n  <ellipse data-zone=\"Planta del pie\" cx=\"200\" cy=\"258\" rx=\"7\" ry=\"5\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n  <ellipse data-zone=\"Planta del pie\" cx=\"220\" cy=\"258\" rx=\"7\" ry=\"5\" fill=\"#1a1e28\" stroke=\"#2a2f3a\" stroke-width=\"1\" class=\"bz\"/>\n</svg>";
-
-function paintBodyMap(containerId, zoneCounts, maxCount){
-  const c=document.getElementById(containerId);
-  if(!c)return;
-  const total=maxCount||Math.max(1,...Object.values(zoneCounts));
-  c.querySelectorAll('.bz').forEach(el=>{
-    const zone=el.dataset.zone;
-    const count=zoneCounts[zone]||0;
-    if(count===0){
-      el.setAttribute('fill','#1a1e28');
-    } else {
-      const intensity=Math.min(1, count/total);
-      const r=Math.round(80+intensity*160);
-      const g=Math.round(50+(1-intensity)*60);
-      const b=Math.round(50+(1-intensity)*60);
-      el.setAttribute('fill',`rgb(${r},${g},${b})`);
-      el.setAttribute('stroke',`rgb(${Math.min(255,r+30)},${g},${b})`);
-      el.setAttribute('stroke-width','1.5');
-      const t=document.createElementNS('http://www.w3.org/2000/svg','title');
-      t.textContent=zone+' ('+count+')';
-      el.innerHTML='';
-      el.appendChild(t);
-    }
-  });
-}
-
-function getZonesFromText(text){
-  if(!text)return [];
-  const zones=['Cuello','Hombro','Espalda alta','Lumbar','Brazo armado / muñeca','Cuádriceps','Isquios','Gemelo','Aductor / pubis','Glúteo','Rodilla','Tobillo','Planta del pie','Otro / general'];
-  const found=[];
-  zones.forEach(z=>{
-    if(text.toLowerCase().includes(z.toLowerCase().split(' ')[0])){
-      found.push(z);
-    }
-  });
-  return found;
-}
-
-function buildTeamBodyMap(){
-  const c=document.getElementById('team-body-map-zones');
-  if(!c)return;
-  // Aggregate zones from all athletes' lesion text
-  const zoneCounts={};
-  if(typeof byEmail !== 'undefined' && byEmail){
-    Object.values(byEmail).forEach(d=>{
-      d.les.forEach(les=>{
-        getZonesFromText(les).forEach(z=>{
-          zoneCounts[z]=(zoneCounts[z]||0)+1;
-        });
-      });
-    });
-  }
-  c.innerHTML=BODY_MAP_SVG_HTML;
-  setTimeout(()=>paintBodyMap('team-body-map-zones',zoneCounts),50);
-  // Update legend
-  const legend=document.getElementById('team-body-legend');
-  if(legend){
-    const sorted=Object.entries(zoneCounts).sort((a,b)=>b[1]-a[1]);
-    if(sorted.length===0){
-      legend.innerHTML='<div style="color:var(--mu);font-size:11px;padding:8px">Sin dolores reportados en el periodo</div>';
-    } else {
-      legend.innerHTML=sorted.slice(0,10).map(([z,n])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid var(--bd)"><span>${z}</span><span style="color:#f08080;font-family:var(--fm)">${n} reporte${n>1?'s':''}</span></div>`).join('');
-    }
-  }
-}
-
-function buildAthleteBodyMap(athleteData){
-  const c=document.getElementById('atl-body-map-zones');
-  if(!c)return;
-  const zoneCounts={};
-  (athleteData.les||[]).forEach(les=>{
-    getZonesFromText(les).forEach(z=>{
-      zoneCounts[z]=(zoneCounts[z]||0)+1;
-    });
-  });
-  c.innerHTML=BODY_MAP_SVG_HTML;
-  setTimeout(()=>paintBodyMap('atl-body-map-zones',zoneCounts),50);
-  const legend=document.getElementById('atl-body-legend');
-  if(legend){
-    const sorted=Object.entries(zoneCounts).sort((a,b)=>b[1]-a[1]);
-    if(sorted.length===0){
-      legend.innerHTML='<div style="color:var(--mu);font-size:11px;padding:8px">Sin dolores reportados</div>';
-    } else {
-      legend.innerHTML=sorted.map(([z,n])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid var(--bd)"><span>${z}</span><span style="color:#f08080;font-family:var(--fm)">${n} día${n>1?'s':''}</span></div>`).join('');
-    }
-  }
-}
-
 
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});
