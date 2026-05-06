@@ -596,9 +596,10 @@ async function syncFromSheet(){
   try{
     const j=await jsonp(SCRIPT_URL+'?action=load&team='+STORE_KEY);
     if(j.data&&j.data.comps&&j.data.comps.length>5&&j.data.weeks&&j.data.weeks.length>10){
-      // Valid data from Sheet - use it
+      // Los days del Sheet siempre tienen prioridad sobre el localStorage
+      const sheetDays=j.data.days||{};
       S=j.data;
-      if(!S.days)S.days={};
+      S.days=sheetDays;
       if(!S.nid)S.nid=200;
       localStorage.setItem(STORE_KEY,JSON.stringify(S));
       bNext();
@@ -607,9 +608,8 @@ async function syncFromSheet(){
       if(built['adm']){rAC();rAW();}
       const ss=document.getElementById('sync-status');
       if(ss){ss.textContent='✓ Sincronizado';ss.style.color='var(--ok)';}
-      console.log('Sheet OK: comps='+S.comps.length+' weeks='+S.weeks.length);
+      console.log('Sheet OK: comps='+S.comps.length+' weeks='+S.weeks.length+' days='+Object.keys(S.days).length);
     } else {
-      // Sheet empty or invalid - use local defaults
       console.log('Sheet vacío, usando datos locales');
     }
   }catch(e){
@@ -2079,37 +2079,6 @@ if('serviceWorker' in navigator){
 }
 </script>
 
-
-<!-- BANNER DE ACTUALIZACIÓN PWA -->
-<div id="update-banner" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#ffffff;border:2px solid #ccff66;border-radius:12px;padding:14px 20px;z-index:99999;font-family:sans-serif;font-size:14px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.5);max-width:300px;width:90%;"><div style="margin-bottom:10px;">🔄 <strong>Nueva versión disponible</strong></div><button onclick="applyUpdate()" style="background:#ccff66;color:#0a0a0a;border:none;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:bold;cursor:pointer;width:100%;">Actualizar ahora</button></div>
-<script>
-(function(){
-  if(!('serviceWorker' in navigator)) return;
-  var pendingSW=null;
-  navigator.serviceWorker.ready.then(function(reg){
-    if(reg.waiting){ pendingSW=reg.waiting; document.getElementById('update-banner').style.display='block'; }
-    reg.addEventListener('updatefound',function(){
-      var newSW=reg.installing;
-      newSW.addEventListener('statechange',function(){
-        if(newSW.state==='installed'&&navigator.serviceWorker.controller){
-          pendingSW=newSW;
-          document.getElementById('update-banner').style.display='block';
-        }
-      });
-    });
-  });
-  navigator.serviceWorker.addEventListener('controllerchange',function(){ window.location.reload(); });
-  window.applyUpdate=function(){
-    if(pendingSW){ pendingSW.postMessage({action:'skipWaiting'}); }
-    else{ window.location.reload(true); }
-  };
-  document.addEventListener('visibilitychange',function(){
-    if(document.visibilityState==='visible'){
-      navigator.serviceWorker.ready.then(function(reg){ reg.update(); });
-    }
-  });
-})();
-</script>
 
 </body>
 </html>
