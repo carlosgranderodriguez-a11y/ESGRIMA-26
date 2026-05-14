@@ -548,7 +548,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
 // ═══════════════════════════════════════
 const CSV_URL='https://docs.google.com/spreadsheets/d/1AtMAbBLBZ18zsWcvivj8h1aQvT3agi7WP8DmtdT1ew8/export?format=csv&gid=1490399670';
 const STORE_KEY='esgrima26fem';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxOWUdgQKMBaG60N2MOZkoQLhvG70mfjBE7BPt5ugAnKXIEU-yBD75MIGwLsZ4zBU8F/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzQ9C015hlsdqPb1SEo8VnQjWMBHpHF2xkhyUkCo1wgBaSgVze8wWXEYLe0Up_ttaxX/exec';
 function jsonp(url){
   return new Promise((resolve,reject)=>{
     const cb='_cb'+Date.now()+'_'+Math.random().toString(36).slice(2);
@@ -694,16 +694,16 @@ function parseCSV(text){
 async function loadData(){
   document.getElementById('r-team').innerHTML='<tr><td colspan="6" style="color:var(--mu);font-family:var(--fm);font-size:12px;padding:16px 8px">Cargando datos...</td></tr>';
   try{
-    const r=await fetch(CSV_URL,{signal:AbortSignal.timeout(15000)});
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const text=await r.text();
+    const j=await jsonp(SCRIPT_URL+'?action=wellness&team='+STORE_KEY);
+    if(j.error)throw new Error(j.error);
+    const text=j.csv||'';
     if(!text||text.length<50)throw new Error('Sin datos');
     const rows=parseCSV(text);
     if(rows.length<2)throw new Error('Sin filas');
     allRows=rows;
     processRows(rows);
   }catch(err){
-    console.error('CSV error:',err);
+    console.error('Wellness error:',err);
     document.getElementById('r-team').innerHTML='<tr><td colspan="6" style="color:var(--wn);font-family:var(--fm);font-size:12px;padding:16px 8px">⚠ No se pudieron cargar los datos. Comprueba la conexión a internet.</td></tr>';
   }
 }
